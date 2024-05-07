@@ -7,6 +7,15 @@ const scrapeMercadoLibre = async (productName) => {
         slowMo: 500
     });
 
+    const prod1 = {
+        title: '',
+        price: '',
+        description: '',
+        specifications: '',
+        url: '',
+        found: 'no'
+    };
+
     const page = await browser.newPage();
     await page.goto('https://www.mercadolibre.com.co');
     await page.waitForLoadState('domcontentloaded');
@@ -31,21 +40,28 @@ const scrapeMercadoLibre = async (productName) => {
     const items = await page.$$('.ui-search-item__group__element.ui-search-link__title-card.ui-search-link');
     if (items.length > 0) {
         await items[0].click();
-        await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-    
-
-
         // Extraer los datos del producto
-        const title = await page.$eval('#productTitle', element => element.innerText.trim());
-        const price = await page.$eval('.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay', element => element.innerText.trim());
-        const description = await page.$eval('#feature-bullets', element => element.innerText.trim());
-        const specifications = await page.$eval('#productOverview_feature_div', element => element.innerText.trim());
+        const title = await page.$eval('.ui-pdp-title', element => element.innerText.trim());
+        const price = await page.$eval('.ui-pdp-price__main-container', element => element.innerHTML);
+        const fulldesc = await page.waitForSelector("a.ui-pdp-collapsable__action[title='Ver descripción completa']", { timeout: 5000 });
+        if (fulldesc) {
+            await fulldesc.click();
+        }
+        const description = await page.$eval('p.ui-pdp-description__content', element => element.innerHTML);
+        const specifications = await page.$eval('.ui-vpp-highlighted-specs__features', element => element.innerHTML);
+        prod1.title = title;
+        prod1.description = description;
+        prod1.price = price;
+        prod1.specifications = specifications;
+        prod1.url = page.url();
+        prod1.found = 'yes';
+    }
+        
+        
 
         await browser.close();
-
         // Retorna los datos del producto
-        return { title, price, description, specifications };
+        return { prod1 };
 };
 
 module.exports = { scrapeMercadoLibre };
