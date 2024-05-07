@@ -12,15 +12,40 @@
         <button type="submit">Buscar</button>
     </form>
     <% if(contentAmazon) { %>
-        <div><%- contentAmazon.prod1.image %></div>
-        <h2><%= contentAmazon.prod1.title %></h2>
+        <h1>Producto 1</h1>
+        <div><%- contentAmazon[0].image %></div>
+        <h2><%= contentAmazon[0].title %></h2>
         <h3>Precio:</h3> 
-        <div><%- contentAmazon.prod1.price %></div>
+        <div><%- contentAmazon[0].price %></div>
         <h3>Descripción:</h3>
-        <div><%- contentAmazon.prod1.description %></div>
+        <div><%- contentAmazon[0].description %></div>
         <h3>Especificaciones:</h3>
-        <div><%- contentAmazon.prod1.specifications %></div>
-        <a href="<%= contentAmazon.prod1.url %>" target="_blank">
+        <div><%- contentAmazon[0].specifications %></div>
+        <a href="<%= contentAmazon[0].url %>" target="_blank">
+            <button>Comprar</button>
+        </a>
+        <h1>Producto 2</h1>
+        <div><%- contentAmazon[1].image %></div>
+        <h2><%= contentAmazon[1].title %></h2>
+        <h3>Precio:</h3> 
+        <div><%- contentAmazon[1].price %></div>
+        <h3>Descripción:</h3>
+        <div><%- contentAmazon[1].description %></div>
+        <h3>Especificaciones:</h3>
+        <div><%- contentAmazon[1].specifications %></div>
+        <a href="<%= contentAmazon[1].url %>" target="_blank">
+            <button>Comprar</button>
+        </a>
+        <h1>Producto 3</h1>
+        <div><%- contentAmazon[2].image %></div>
+        <h2><%= contentAmazon[2].title %></h2>
+        <h3>Precio:</h3> 
+        <div><%- contentAmazon[2].price %></div>
+        <h3>Descripción:</h3>
+        <div><%- contentAmazon[2].description %></div>
+        <h3>Especificaciones:</h3>
+        <div><%- contentAmazon[2].specifications %></div>
+        <a href="<%= contentAmazon[2].url %>" target="_blank">
             <button>Comprar</button>
         </a>
     <% } %>

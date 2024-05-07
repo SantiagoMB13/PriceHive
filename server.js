@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true })); // Middleware para procesar datos del formulario
 
 app.get('/', (req, res) => {
-    res.render('index', { title: 'Product Screenshot', contentAmazon: null});
+    res.render('index', { title: 'PriceHive', contentAmazon: null});
 });
 
 app.post('/search', async (req, res) => {
