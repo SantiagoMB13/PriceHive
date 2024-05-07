@@ -10,6 +10,7 @@ const scrapeMercadoLibre = async (productName) => {
     const prod1 = {
         title: '',
         price: '',
+        image: '',
         description: '',
         specifications: '',
         url: '',
@@ -43,21 +44,22 @@ const scrapeMercadoLibre = async (productName) => {
         // Extraer los datos del producto
         const title = await page.$eval('.ui-pdp-title', element => element.innerText.trim());
         const price = await page.$eval('.ui-pdp-price__main-container', element => element.innerHTML);
+        const image = await page.$eval('.ui-pdp-gallery__figure', element => element.innerHTML);
         const fulldesc = await page.waitForSelector("a.ui-pdp-collapsable__action[title='Ver descripción completa']", { timeout: 5000 });
         if (fulldesc) {
             await fulldesc.click();
         }
         const description = await page.$eval('p.ui-pdp-description__content', element => element.innerHTML);
-        const specifications = await page.$eval('.ui-vpp-highlighted-specs__features', element => element.innerHTML);
+        let specifications = await page.$eval('.ui-vpp-highlighted-specs__features-list', element => element.innerHTML);
+        specifications = "<ul>" + specifications + "</ul>";
         prod1.title = title;
         prod1.description = description;
         prod1.price = price;
         prod1.specifications = specifications;
+        prod1.image = image;
         prod1.url = page.url();
         prod1.found = 'yes';
-    }
-        
-        
+    }    
 
         await browser.close();
         // Retorna los datos del producto

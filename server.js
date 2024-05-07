@@ -18,7 +18,8 @@ app.post('/search', async (req, res) => {
     const productName = req.body.productName; // Obtiene el texto de la barra de búsqueda
     try {
         contentAmazon = await scrapeMercadoLibre(productName); // Llama a la función scrapeAmazon con el producto buscado
-        res.render('index', { title: 'Product Screenshot', contentAmazon }); // Define imagePath aquí
+        console.log(contentAmazon);
+        res.render('index', { title: 'Tienda', contentAmazon });
     } catch (error) {
         console.error('Failed to scrape Amazon:', error);
         res.send('Error scraping Amazon');

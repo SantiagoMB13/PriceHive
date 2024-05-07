@@ -12,16 +12,15 @@
         <button type="submit">Buscar</button>
     </form>
     <% if(contentAmazon) { %>
-        <img src="<%= contentAmazon.image %>" alt="no se" height="100px" width="100px">
-        <div><%- contentAmazon.image %></div>
-        <h2><%= contentAmazon.title %></h2>
+        <div><%- contentAmazon.prod1.image %></div>
+        <h2><%= contentAmazon.prod1.title %></h2>
         <h3>Precio:</h3> 
-        <p><%- contentAmazon.price %></p>
+        <div><%- contentAmazon.prod1.price %></div>
         <h3>Descripción:</h3>
-        <div><%- contentAmazon.description %></div>
+        <div><%- contentAmazon.prod1.description %></div>
         <h3>Especificaciones:</h3>
-        <div><%- contentAmazon.specifications %></div>
-        <a href="<%= contentAmazon.productLink %>" target="_blank">
+        <div><%- contentAmazon.prod1.specifications %></div>
+        <a href="<%= contentAmazon.prod1.url %>" target="_blank">
             <button>Comprar</button>
         </a>
     <% } %>
