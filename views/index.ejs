@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+</head>
+<body>
+    <h1><%= title %></h1>
+    <form action="/search" method="post">
+        <input type="text" name="productName" placeholder="Ingrese el producto a buscar">
+        <button type="submit">Buscar</button>
+    </form>
+    <% if(contentAmazon) { %>
+        <img src="<%= contentAmazon.image %>" alt="no se" height="100px" width="100px">
+        <div><%- contentAmazon.image %></div>
+        <h2><%= contentAmazon.title %></h2>
+        <h3>Precio:</h3> 
+        <p><%- contentAmazon.price %></p>
+        <h3>Descripción:</h3>
+        <div><%- contentAmazon.description %></div>
+        <h3>Especificaciones:</h3>
+        <div><%- contentAmazon.specifications %></div>
+        <a href="<%= contentAmazon.productLink %>" target="_blank">
+            <button>Comprar</button>
+        </a>
+    <% } %>
+</body>
+</html>
