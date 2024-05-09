@@ -17,8 +17,8 @@ app.get('/', (req, res) => {
 app.post('/search', async (req, res) => {
     const productName = req.body.productName; // Obtiene el texto de la barra de búsqueda
     try {
-        contentML = await scrapeMercadoLibre(productName); // Llama a la función scrapeMercadoLibre con el producto buscado
         contentAlk = await scrapeAlkosto(productName); // Llama a la función scrapeAlkosto con el producto buscado
+        contentML = await scrapeMercadoLibre(productName); // Llama a la función scrapeMercadoLibre con el producto buscado
         content = contentAlk.concat(contentML); // Concatena los resultados de las tiendas
         let contentsorted = content;
         contentsorted.sort(function(a, b) {
