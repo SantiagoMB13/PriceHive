@@ -1,0 +1,19 @@
+.productrow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 20px 40px;
+}
+
+.productitem{
+    background-color: lightgray;
+    border: 2px solid black;
+    width: 45%;
+    text-align: center;
+}
+
+.productitem img{
+    width: 80%;
+    height: auto
+}

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PriceHive</title>
+    <link rel="stylesheet" href="assets/styles/index.css">
 </head>
 <body>
     <h1>PriceHive</h1>
@@ -13,42 +14,93 @@
         <button type="submit">Buscar</button>
     </form>
     <% if(content) { %>
-        <h1>Producto 1</h1>
-        <div><%- content[0].image %></div>
-        <h2><%= content[0].title %></h2>
-        <h3>Precio:</h3> 
-        <div><%- content[0].price %></div>
-        <h3>Descripción:</h3>
-        <div><%- content[0].description %></div>
-        <h3>Especificaciones:</h3>
-        <div><%- content[0].specifications %></div>
-        <a href="<%= content[0].url %>" target="_blank">
-            <button>Comprar</button>
-        </a>
-        <h1>Producto 2</h1>
-        <div><%- content[1].image %></div>
-        <h2><%= content[1].title %></h2>
-        <h3>Precio:</h3> 
-        <div><%- content[1].price %></div>
-        <h3>Descripción:</h3>
-        <div><%- content[1].description %></div>
-        <h3>Especificaciones:</h3>
-        <div><%- content[1].specifications %></div>
-        <a href="<%= content[1].url %>" target="_blank">
-            <button>Comprar</button>
-        </a>
-        <h1>Producto 3</h1>
-        <div><%- content[2].image %></div>
-        <h2><%= content[2].title %></h2>
-        <h3>Precio:</h3> 
-        <div><%- content[2].price %></div>
-        <h3>Descripción:</h3>
-        <div><%- content[2].description %></div>
-        <h3>Especificaciones:</h3>
-        <div><%- content[2].specifications %></div>
-        <a href="<%= content[2].url %>" target="_blank">
-            <button>Comprar</button>
-        </a>
+        <div class="productrow">
+        <% if(content[0]) { %>
+        <div class="productitem">
+            <h1>Producto 1</h1>
+            <div><%- content[0].image %></div>
+            <h2><%= content[0].title %></h2>
+            <h3>Precio:</h3> 
+            <div><%- content[0].price %></div>
+            <h3>Descripción:</h3>
+            <div><%- content[0].description %></div>
+            <h3>Especificaciones:</h3>
+            <div><%- content[0].specifications %></div>
+            <a href="<%= content[0].url %>" target="_blank">
+                <button>Comprar</button>
+            </a>
+        </div>
+        <% } %>
+        <% if(content[1]) { %>
+        <div class="productitem">
+            <h1>Producto 2</h1>
+            <div><%- content[1].image %></div>
+            <h2><%= content[1].title %></h2>
+            <h3>Precio:</h3> 
+            <div><%- content[1].price %></div>
+            <h3>Descripción:</h3>
+            <div><%- content[1].description %></div>
+            <h3>Especificaciones:</h3>
+            <div><%- content[1].specifications %></div>
+            <a href="<%= content[1].url %>" target="_blank">
+                <button>Comprar</button>
+            </a>
+        </div>
+        <% } %>
+        </div>
+        <div class="productrow">
+        <% if(content[2]) { %>
+            <div class="productitem">
+            <h1>Producto 3</h1>
+            <div><%- content[2].image %></div>
+            <h2><%= content[2].title %></h2>
+            <h3>Precio:</h3> 
+            <div><%- content[2].price %></div>
+            <h3>Descripción:</h3>
+            <div><%- content[2].description %></div>
+            <h3>Especificaciones:</h3>
+            <div><%- content[2].specifications %></div>
+            <a href="<%= content[2].url %>" target="_blank">
+                <button>Comprar</button>
+            </a>
+            </div>
+        <% } %>
+        <% if(content[3]) { %>
+            <div class="productitem">
+            <h1>Producto 4</h1>
+            <div><%- content[3].image %></div>
+            <h2><%= content[3].title %></h2>
+            <h3>Precio:</h3> 
+            <div><%- content[3].price %></div>
+            <h3>Descripción:</h3>
+            <div><%- content[3].description %></div>
+            <h3>Especificaciones:</h3>
+            <div><%- content[3].specifications %></div>
+            <a href="<%= content[3].url %>" target="_blank">
+                <button>Comprar</button>
+            </a>
+            </div>
+        <% } %>
+        </div>
+        <div class="productrow">
+        <% if(content[4]) { %>
+            <div class="productitem">
+            <h1>Producto 5</h1>
+            <div><%- content[4].image %></div>
+            <h2><%= content[4].title %></h2>
+            <h3>Precio:</h3> 
+            <div><%- content[4].price %></div>
+            <h3>Descripción:</h3>
+            <div><%- content[4].description %></div>
+            <h3>Especificaciones:</h3>
+            <div><%- content[4].specifications %></div>
+            <a href="<%= content[4].url %>" target="_blank">
+                <button>Comprar</button>
+            </a>
+            </div>
+        <% } %>
+        </div>
     <% } %>
 </body>
 </html>
+
