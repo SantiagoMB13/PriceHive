@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { scrapeMercadoLibre, scrapeAlkosto } = require('./scraper');
+const { scrapeMercadoLibre, scrapeAlkosto, scrapeExito } = require('./scraper');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -61,7 +61,10 @@ app.post('/search', async (req, res) => { //post
         try {
             const contentAlk = await scrapeAlkosto(productName);
             const contentML = await scrapeMercadoLibre(productName);
+            const contentEx = await scrapeExito(productName);
             content = contentAlk.concat(contentML);
+            content = content.concat(contentEx);
+            console.log(content.length);
             contentsorted = content.slice(); // Crear una copia para ordenar
             contentsorted.sort(function(a, b) {
                 return a.priceint - b.priceint;
