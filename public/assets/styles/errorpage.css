@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.error-container {
+    text-align: center;
+}
+
+.error-text {
+    font-size: 24px;
+    margin-bottom: 20px;
+}

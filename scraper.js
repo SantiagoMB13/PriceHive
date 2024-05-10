@@ -19,7 +19,7 @@ while(keepsearching==true & count < 3) {
          }
      }
      index++;
-     if(index-count > 4){
+     if(index-count > 3){
         keepsearching = false;
     }
 }
@@ -42,7 +42,7 @@ const scrapeAlkosto = async (productName) => {
              }
          }
          index++;
-         if(index-count > 4){
+         if(index-count > 3){
             keepsearching = false;
         }
     }
@@ -173,13 +173,13 @@ const getAlkproduct = async (productName, prodindex) => {
     await page.waitForLoadState('domcontentloaded');
 
     // Seleccionar el primer producto de la lista
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 3000 });
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 4000 });
     
     if (items.length > prodindex) {
         try{
             await items[prodindex].click();
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 6000));
             await page.waitForLoadState('domcontentloaded');
         } catch (error) {
             console.log(error);
