@@ -17,3 +17,9 @@
     width: 80%;
     height: auto
 }
+
+.especificaciones{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}

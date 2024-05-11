@@ -75,17 +75,23 @@ const scrapeAlkosto = async (productName) => {
         const scrapeExito = async (productName) => {
             let index = 0;
             let count = 0;
+            pagenum = 0;
             let keepsearching = true;
             let productos = [];
             while (keepsearching == true & count < 3) {
-                const product = await getExproduct(productName, index);
+                const product = await getExproduct(productName, index, pagenum);
                 if (product !== null) {
+                    if(product.found == null){
+                        pagenum++;
+                        index--;
+                    } else {
                     if (product.found == false) {
                         keepsearching = false;
                     } else {
                         productos.push(product);
                         count++;
                     }
+                }
                 }
                 index++;
                 if (index - count > 3) {
@@ -104,6 +110,7 @@ const getMLproduct = async (productName, prodindex) => {
     });
 
    let found = false;
+   productNameori = productName;
    productName = productName.replace(/ /g, "-");//Reemplazar espacios por guiones para la URL
    const page = await browser.newPage();
    let link = "https://listado.mercadolibre.com.co/product_OrderId_PRICE_NoIndex_True"; //Navegar a mercado libre, ya aplicando orden por precio
@@ -120,15 +127,26 @@ const getMLproduct = async (productName, prodindex) => {
         console.log("Error en el producto " + prodindex + " de Mercado Libre, intentando con el siguiente...");
         return null;
     }   
-        // Seleccionar el primer producto de la lista
+        // Seleccionar los productos de la lista
         await page.waitForLoadState('domcontentloaded');
-    const items = await page.$$('.ui-search-item__group__element.ui-search-link__title-card.ui-search-link');
-    if (items.length > prodindex) {
-        await items[prodindex].click();
+        const items = await page.$$('h2.ui-search-item__title');
+        const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
+    // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
+    const filteredItems = await Promise.all(items.map(async (element) => {
+        let elementTextLowercase = await element.innerText();
+        elementTextLowercase = elementTextLowercase.toLowerCase();
+        return elementTextLowercase.includes(productNameLowercase) && !elementTextLowercase.includes("reacondicionado");
+    }));
+    // Filtrar los elementos basados en el resultado de las llamadas asíncronas
+    const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
+
+    //Seleccionar elementos válidos según el índice
+    if (finalFilteredItems.length > prodindex) {
+        await finalFilteredItems[prodindex].click();
         await page.waitForLoadState('domcontentloaded');
         // Extraer los datos del producto
 
-        // Título
+        // Extraer título
         let title;
         try{
             title = await page.$eval('.ui-pdp-title', element => element.innerText.trim());
@@ -138,7 +156,7 @@ const getMLproduct = async (productName, prodindex) => {
             return null;
         }
 
-        // Precio
+        // Extraer precio
         let price;
         try {
             price = await page.$eval('.ui-pdp-price__second-line', element => element.innerText.trim());
@@ -178,7 +196,7 @@ const getMLproduct = async (productName, prodindex) => {
             return null;
         }
 
-        //Especificaciones
+        // Extraer especificaciones
         let specifications;
         try {
             specifications = await page.$eval('.ui-vpp-highlighted-specs__features-list', element => element.innerHTML);
@@ -219,30 +237,27 @@ const getAlkproduct = async (productName, prodindex) => {
     await page.waitForLoadState('domcontentloaded');
 
     // Seleccionar los productos de la lista
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 4000 });
+    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 7000 });
     
     if (items.length > prodindex) {
         try{ //Se trata de acceder a uno de los elementos (segun el indice)
             await items[prodindex].click();
-            await new Promise(resolve => setTimeout(resolve, 6000));
             await page.waitForLoadState('domcontentloaded');
-        } catch (error) {
-            console.log(error);
-        }
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } catch (error) {}
         // Extraer los datos del producto
 
-        // Título
+        // Extraer título
         let title;
         try{
-            title = await page.$eval('.new-container__header__title', element => element.innerText.trim(), { timeout: 10000 }); 
+            title = await page.$eval('.new-container__header__title', element => element.innerText.trim()); 
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Alkosto, intentando con el siguiente...");
             return null;
         }
 
-        // Precio
+        // Extraer precio
         let price;
         try {
             price = await page.$eval('#js-original_price', element => element.innerText.trim());
@@ -278,7 +293,7 @@ const getAlkproduct = async (productName, prodindex) => {
             return null;
         }
 
-        //Especificaciones
+        // Extraer especificaciones
         let specifications;
         try {
             specifications = await page.$eval('.tab-details__keyFeatures--list', element => element.innerHTML);
@@ -311,28 +326,44 @@ const getOliproduct = async (productName, prodindex) => {
     });
 
    let found = false;
+   const productNameori = productName;
     const page = await browser.newPage();
     let link = "https://www.olimpica.com/product?order=OrderByPriceASC"; //Navegar a olimpica, ya aplicando orden por precio
     productName = productName.replace(/ /g, "%20");
     let nuevoLink = link.replace("product", productName);
     await page.goto(nuevoLink, { timeout: 60000 }); // Tiempo de espera de 60 segundos porque la pagina es pesada
     await page.waitForLoadState('domcontentloaded');
-
-    // Seleccionar los productos de la lista
-    await new Promise(resolve => setTimeout(resolve, 10000));
-    const items = await page.$$('.vtex-product-summary-2-x-clearLink.vtex-product-summary-2-x-clearLink--product-summary.h-100.flex.flex-column', { timeout: 4000 });
-    
-    if (items.length > prodindex) {
-        try{ //Se trata de acceder a uno de los elementos (segun el indice)
-            await items[prodindex].click();
-            await new Promise(resolve => setTimeout(resolve, 6000));
+    const morebtn = page.locator(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 11000 }); //Esperar a que cargue el botón de mostrar más
+    if(morebtn){
+        try{
+         let morebtnmorebtn = await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 8000 });
+         while(morebtnmorebtn){
+            await morebtn.scrollIntoViewIfNeeded();
             await page.waitForLoadState('domcontentloaded');
-        } catch (error) {
-            console.log(error);
-        }
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            morebtnmorebtn = await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 2000 });
+         }
+        } catch (error) {} //Si no se encuentra el botón de mostrar más, se continua con el código
+    }
+    // Seleccionar los productos de la lista                            
+    const items = await page.$$('span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName.t-body', { timeout: 15000 });
+    const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
+    // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
+    const filteredItems = await Promise.all(items.map(async (element) => {
+        let elementTextLowercase = await element.innerText();
+        elementTextLowercase = elementTextLowercase.toLowerCase();
+        return elementTextLowercase.includes(productNameLowercase) && !elementTextLowercase.includes("reacondicionado"); //Filtrar por el nombre del producto y que no sea reacondicionado
+    }));
+    // Filtrar los elementos basados en el resultado de las llamadas asíncronas
+    const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
+    if (finalFilteredItems.length > prodindex) {
+        try{ //Se trata de acceder a uno de los elementos (segun el indice)
+            await finalFilteredItems[prodindex].click();
+            await page.waitForLoadState('domcontentloaded');
+        } catch (error){}
         // Extraer los datos del producto
         await new Promise(resolve => setTimeout(resolve, 5000));
-        // Título
+        // Extraer título
         let title;
         try{
             title = await page.$eval('.vtex-store-components-3-x-productNameContainer.vtex-store-components-3-x-productNameContainer--quickview.mv0.t-heading-4', element => element.innerText.trim(), { timeout: 20000 }); 
@@ -342,15 +373,12 @@ const getOliproduct = async (productName, prodindex) => {
             return null;
         }
 
-        // Precio
+        // Extraer precio
         let price;
         try {
             price = await page.$eval('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF', element => element.innerText.trim(), { timeout: 20000 });
             price = price.replaceAll(/\s/g, '');
-            console.log(price);
             priceint = parseInt(price.replace('$', '').replaceAll('.', ''));
-            console.log(priceint);
-            priceint = 0;
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Olimpica, intentando con el siguiente...");
@@ -378,11 +406,11 @@ const getOliproduct = async (productName, prodindex) => {
             return null;
         }
 
-        //Especificaciones
+        // Extraer especificaciones
         let specifications;
         try { //Tratar de mostrar las especificaciones en la página
             await new Promise(resolve => setTimeout(resolve, 1000));
-            const filtronuevo = await page.waitForSelector(".vtex-disclosure-layout-1-x-trigger.vtex-disclosure-layout-1-x-trigger--product-specifications.vtex-disclosure-layout-1-x-trigger--hidden.vtex-disclosure-layout-1-x-trigger--product-specifications--hidden", { timeout: 20000 });
+            const filtronuevo = await page.waitForSelector(".vtex-disclosure-layout-1-x-trigger.vtex-disclosure-layout-1-x-trigger--product-specifications.vtex-disclosure-layout-1-x-trigger--hidden.vtex-disclosure-layout-1-x-trigger--product-specifications--hidden", { timeout: 10000 });
             await filtronuevo.click(); 
         } catch (error) { 
             await browser.close();
@@ -390,7 +418,7 @@ const getOliproduct = async (productName, prodindex) => {
             return null;
         }  
 
-        try { //Tratar de obtener las especificacione que conseguimos mostrar en la página
+        try { //Tratar de obtener las especificaciones que conseguimos mostrar en la página
             specifications = await page.$eval('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', element => element.innerHTML, { timeout: 20000 });
             specifications = "<table>" + specifications + "</table>";
         } catch (error) {
@@ -405,16 +433,15 @@ const getOliproduct = async (productName, prodindex) => {
         return { title, price, image, description, specifications, url, found, priceint };
     }    else {
             await browser.close();
-            return { found };
+            return { found }; 
     }
 };
 
-const getExproduct = async (productName, prodindex) => {
+const getExproduct = async (productName, prodindex, pagenum) => {
     const browser = await chromium.launch({
         headless: false,
-        slowMo: 500
+        slowMo: 2000
     });
-
     let found = false;
     const page = await browser.newPage()
     const baseUrl = "https://www.exito.com/s";
@@ -427,13 +454,42 @@ const getExproduct = async (productName, prodindex) => {
     await page.click("span:text('Menor precio')")
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('h3[data-fs-product-card-title="true"]');
-    const items = await page.$$('h3[data-fs-product-card-title="true"]');
-    if (items.length > prodindex) {
-        await items[prodindex].click();
+        for (let i = 0; i < pagenum; i++) { //Movernos de pagina segun se necesite
+            nextpage = await page.waitForSelector('.Pagination_nextPreviousLink__f7_2J', { timeout: 10000 }); //Esperar a que cargue el botón de siguiente página
+            nextpagebtns = await page.$$('.Pagination_nextPreviousLink__f7_2J'); //Obtener todos los botones de siguiente página
+            if (nextpagebtns.length > 1) {
+                await nextpagebtns[1].click(); //Clic en el botón de siguiente página
+            } else {
+            await nextpage.click(); //Clic en el botón de siguiente página
+            }
+            await page.waitForLoadState('domcontentloaded');
+        } 
+        await page.waitForSelector('h3[data-fs-product-card-title="true"]', { timeout: 10000 });
+        const items = await page.$$('h3[data-fs-product-card-title="true"]'); // Obtener todos los productos de la página
+        const productNameLowercase = productName.toLowerCase(); // Convertir el nombre del producto a minúsculas
+        
+        // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
+        const filteredItems = await Promise.all(items.map(async (element) => {
+            let elementTextLowercase = await element.innerText();
+            elementTextLowercase = elementTextLowercase.toLowerCase();
+            return elementTextLowercase.includes(productNameLowercase) && !elementTextLowercase.includes("reacondicionado");
+        }));
+        
+        // Filtrar los elementos basados en el resultado de las llamadas asíncronas
+        const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
+
+
+
+
+    await page.waitForLoadState('domcontentloaded');
+    if (finalFilteredItems.length > prodindex) {
+            await finalFilteredItems[prodindex].click();
+            await page.waitForLoadState('networkidle');
+
         await page.waitForLoadState('networkidle');
         // Extraer los datos del producto
 
-        // Título
+        // Extraer título
         let title;
         try {
             title = await page.$eval('.product-title_product-title__heading___mpLA', element => element.innerText.trim(), { timeout: 10000 });
@@ -443,7 +499,7 @@ const getExproduct = async (productName, prodindex) => {
             return null;
         }
 
-        // Precio
+        // Extraer precio
         let price;
         try {
             price = await page.$eval('.ProductPrice_container__price__XmMWA', element => element.innerText.trim());
@@ -502,8 +558,16 @@ const getExproduct = async (productName, prodindex) => {
         // Retorna los datos del producto
         return { title, price, image, description, specifications, url, found, priceint };
     } else {
-        await browser.close();
-        return { found };
+        let nextpage;
+        try{
+            nextpage = await page.waitForSelector('span[data-fs-pagination-seguiente="true"]', { timeout: 10000 });
+            await browser.close();
+            output = "newpage";
+            return { nextpage };
+        } catch (error) {
+            await browser.close();
+            return { found };
+        }
     }
 };
 
