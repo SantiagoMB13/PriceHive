@@ -55,6 +55,7 @@ body{
 .logo{
     height: 300px;
     width: auto;
+    cursor: pointer;
 }
 
 .btn {

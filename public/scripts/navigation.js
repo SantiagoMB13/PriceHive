@@ -76,6 +76,10 @@ function renderSearchP3Results(productName, order) {
      });
 }
 
+function navigateToMain() {
+    window.location.href = '/';
+}
+
 function navigateToP1() {
     window.location.href = '/search';
 }

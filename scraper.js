@@ -229,6 +229,7 @@ const getAlkproduct = async (productName, prodindex) => {
     });
 
    let found = false;
+    let productNameori = productName.trim();
     const page = await browser.newPage();
     let link = "https://www.alkosto.com/search?text=product&sort=price-asc";
     productName = productName.replace(/ /g, "+");
@@ -239,9 +240,21 @@ const getAlkproduct = async (productName, prodindex) => {
     // Seleccionar el primer producto de la lista
     await new Promise(resolve => setTimeout(resolve, 3000));
     const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 4000 });
-    if (items.length > prodindex) {
+        const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
+    // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
+    const filteredItems = await Promise.all(items.map(async (element) => {
+        let elementTextLowercase = await element.innerText();
+        elementTextLowercase = elementTextLowercase.toLowerCase();
+        elementTextLowercase = elementTextLowercase.replace(/[\s\u00A0\u00A0]/g, " "); //Reemplazar espacios y espacios no rompibles por un solo espacio
+        return elementTextLowercase.includes(productNameLowercase) && !elementTextLowercase.includes("reacondicionado"); //Filtrar por el nombre del producto y que no sea reacondicionado
+    }));
+        // Filtrar los elementos basados en el resultado de las llamadas asíncronas
+        const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
+
+
+    if (finalFilteredItems.length > prodindex) {
         try{
-            await items[prodindex].click();
+            await finalFilteredItems[prodindex].click();
             await new Promise(resolve => setTimeout(resolve, 5500));
             await page.waitForLoadState('domcontentloaded');
         } catch (error) {
