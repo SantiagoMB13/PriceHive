@@ -110,7 +110,7 @@ const getMLproduct = async (productName, prodindex) => {
     });
 
    let found = false;
-   productNameori = productName;
+   productNameori = productName.trim();
    productName = productName.replace(/ /g, "-");//Reemplazar espacios por guiones para la URL
    const page = await browser.newPage();
    let link = "https://listado.mercadolibre.com.co/product_OrderId_PRICE_NoIndex_True"; //Navegar a mercado libre, ya aplicando orden por precio
@@ -230,38 +230,40 @@ const getAlkproduct = async (productName, prodindex) => {
 
    let found = false;
     const page = await browser.newPage();
-    let link = "https://www.alkosto.com/search?text=product&sort=price-asc&range=300000-999999999"; //Navegar a alkosto, ya aplicando orden por precio y filtro de 300k
+    let link = "https://www.alkosto.com/search?text=product&sort=price-asc";
     productName = productName.replace(/ /g, "+");
     let nuevoLink = link.replace("product", productName);
-    await page.goto(nuevoLink, { timeout: 60000 }); // Tiempo de espera de 60 segundos porque la pagina es pesada
+    await page.goto(nuevoLink, { timeout: 60000 }); // Aumentamos el tiempo de espera a 60 segundos
     await page.waitForLoadState('domcontentloaded');
 
-    // Seleccionar los productos de la lista
-    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 7000 });
-    
+    // Seleccionar el primer producto de la lista
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 4000 });
     if (items.length > prodindex) {
-        try{ //Se trata de acceder a uno de los elementos (segun el indice)
+        try{
             await items[prodindex].click();
+            await new Promise(resolve => setTimeout(resolve, 5500));
             await page.waitForLoadState('domcontentloaded');
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        } catch (error) {}
+        } catch (error) {
+            console.log(error);
+        }
         // Extraer los datos del producto
 
-        // Extraer título
+        // Título
         let title;
         try{
-            title = await page.$eval('.new-container__header__title', element => element.innerText.trim()); 
+            title = await page.$eval('.new-container__header__title', element => element.innerText.trim(), { timeout: 10000 }); 
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Alkosto, intentando con el siguiente...");
             return null;
         }
 
-        // Extraer precio
+        // Precio
         let price;
         try {
             price = await page.$eval('#js-original_price', element => element.innerText.trim());
-            price = price.replaceAll(/\s/g, '');
+            price = price.replace(/\s/g, '');
             price = price.replace('Hoy', '');
             priceint = parseInt(price.replace('$', '').replaceAll('.', ''));
         } catch (error) {
@@ -293,13 +295,13 @@ const getAlkproduct = async (productName, prodindex) => {
             return null;
         }
 
-        // Extraer especificaciones
+        //Especificaciones
         let specifications;
         try {
             specifications = await page.$eval('.tab-details__keyFeatures--list', element => element.innerHTML);
             specifications = "<ul>" + specifications + "</ul>";
         } catch (error) {
-            try{ //Se trata de obtener las especificaciones de otra forma
+            try{
                 specifications = await page.$eval('.new-container__table__classifications___type__wrap.new-container__table__classifications___type__wrap--mobile', element => element.innerText.trim());
             } catch (error) {
                 await browser.close();
@@ -325,7 +327,7 @@ const getOliproduct = async (productName, prodindex) => {
         slowMo: 500
     });
    let found = false;
-   const productNameori = productName;
+   const productNameori = productName.trim();
     const page = await browser.newPage();
     let link = "https://www.olimpica.com/product?order=OrderByPriceASC"; //Navegar a olimpica, ya aplicando orden por precio
     productName = productName.replace(/ /g, "%20");
@@ -464,7 +466,7 @@ const getExproduct = async (productName, prodindex, pagenum) => {
         } 
         await page.waitForSelector('h3[data-fs-product-card-title="true"]', { timeout: 10000 });
         const items = await page.$$('h3[data-fs-product-card-title="true"]'); // Obtener todos los productos de la página
-        const productNameLowercase = productName.toLowerCase(); // Convertir el nombre del producto a minúsculas
+        const productNameLowercase = productName.toLowerCase().trim(); // Convertir el nombre del producto a minúsculas
         
         // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
         const filteredItems = await Promise.all(items.map(async (element) => {
