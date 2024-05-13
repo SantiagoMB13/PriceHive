@@ -46,4 +46,11 @@ button[type="submit"] {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    margin-bottom: 20px;
 }
+
+.container p{
+    font-size: 18px;
+    text-align: center;
+}
+
