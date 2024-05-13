@@ -83,7 +83,7 @@ const scrapeAlkosto = async (productName) => {
                 if (product !== null) {
                     if(product.found == null){
                         pagenum++;
-                        index--;
+                        index=-1; //Se reinicia el indice para buscar en la siguiente página
                     } else {
                     if (product.found == false) {
                         keepsearching = false;
@@ -324,7 +324,6 @@ const getOliproduct = async (productName, prodindex) => {
         headless: false,
         slowMo: 500
     });
-
    let found = false;
    const productNameori = productName;
     const page = await browser.newPage();
@@ -333,19 +332,18 @@ const getOliproduct = async (productName, prodindex) => {
     let nuevoLink = link.replace("product", productName);
     await page.goto(nuevoLink, { timeout: 60000 }); // Tiempo de espera de 60 segundos porque la pagina es pesada
     await page.waitForLoadState('domcontentloaded');
-    const morebtn = page.locator(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 11000 }); //Esperar a que cargue el botón de mostrar más
-    if(morebtn){
+    await new Promise(resolve => setTimeout(resolve, 3000));  
+    let morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 5000 }); //Consigo los botones de mostrar más
         try{
-         let morebtnmorebtn = await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 8000 });
-         while(morebtnmorebtn){
-            await morebtn.scrollIntoViewIfNeeded();
+         while(morebtn.length > 0){ //Mientras exista el botn de mostrar más, se da mueve hacia él
+            await morebtn[0].scrollIntoViewIfNeeded(); //El botón se activa cuando se ve en la pantalla
             await page.waitForLoadState('domcontentloaded');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            morebtnmorebtn = await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 2000 });
+            await new Promise(resolve => setTimeout(resolve, 3000));  //Esperar a que cargue bien la página
+            morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 4000 }); //Virificar si hay más por mostrar   
          }
-        } catch (error) {} //Si no se encuentra el botón de mostrar más, se continua con el código
-    }
-    // Seleccionar los productos de la lista                            
+        } catch (error) {}
+    // Seleccionar los productos de la lista
+    await page.waitForLoadState('domcontentloaded');                         
     const items = await page.$$('span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName.t-body', { timeout: 15000 });
     const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
     // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
@@ -527,7 +525,7 @@ const getExproduct = async (productName, prodindex, pagenum) => {
             description = await page.$eval('div[data-fs-description-text=true]', element => element.innerText.trim());
         } catch (error) {
             await browser.close();
-            console.log("Error en description en el producto " + prodindex + " de Mercado Libre, intentando con el siguiente...");
+            console.log("Error en description en el producto " + prodindex + " de Éxito, intentando con el siguiente...");
             return null;
         }
         let specifications;

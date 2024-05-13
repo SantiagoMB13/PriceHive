@@ -5,44 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargando...</title>
     <link rel="stylesheet" href="assets/styles/loadingpage.css">
+    <script src="scripts/navigation.js"></script>
 </head>
-<body>
-    <div class="loading-container" data-product-name="<%= productName %>" data-order="<%= order %>">
+<body onload="renderSearchResults('<%= productName %>', '<%= order %>')">
+    <div class="loading-container">
         <img src="assets/images/loading.gif" alt="Cargando..." width="600" height="600">
         <h2 class="loading-text">Extrayendo información de los productos...</h2>
         <p class="loading-text">Esto puede tardar unos minutos, por favor espere pacientemente.</p>
     </div>
-
-    <script>
-        // Parámetros a enviar en el cuerpo de la solicitud
-        const loadingContainer = document.querySelector('.loading-container');
-        const productName = loadingContainer.dataset.productName;
-        const order = loadingContainer.dataset.order;
-        const params = {
-            productName: productName,
-            order: order
-        };
-
-        // Realizamos la solicitud POST usando fetch
-        fetch('/search', {
-             method: 'POST',
-             headers: {
-                 'Content-Type': 'application/json'
-             },
-             body: JSON.stringify(params) // Convertimos el objeto de parámetros a JSON y lo enviamos en el cuerpo
-         })
-         .then(response => {
-             if (response.ok) {
-                 window.location.href = '/search';
-             } else {
-                window.location.href = '/error';
-             }
-         })
-         .catch(error => {
-             console.error('Hubo un error al cargar la información de los productos:', error);
-         });
-
-    </script>
 </body>
 </html>
 

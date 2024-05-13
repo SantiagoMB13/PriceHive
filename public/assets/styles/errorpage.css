@@ -7,10 +7,28 @@ body {
 }
 
 .error-container {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .error-text {
     font-size: 24px;
     margin-bottom: 20px;
+    text-align: center;
+}
+
+.errorbtn {
+    background-color: wheat;
+    color: black;
+    padding: 16px;
+    font-size: 16px;
+    border: 2px solid black;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+html, body{
+    background-color: lightblue;
 }

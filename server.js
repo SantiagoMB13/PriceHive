@@ -21,19 +21,18 @@ let isscrapping = false;
 
 // Middleware para redirigir a la página principal si la URL no es '/' o '/search'
 app.use((req, res, next) => {
-    if (req.url !== '/' && req.url !== '/search' && req.url !== '/loading' && req.url !== '/error') {
+    if (req.url !== '/' && req.url !== '/search' && req.url !== '/loading' && req.url !== '/error' && req.url !== '/search-p2' && req.url !== '/search-p3') {
         res.redirect('/');
     } else {
-        next();
+        if((req.url == '/search-p2' && renderedcontent.length < 6) || (req.url == '/search-p3' && renderedcontent.length < 11)){
+             res.redirect('/');
+         } else {
+             next();
+         }
     }
 });
 
 app.get('/', (req, res) => {
-    content = [];
-    contentsorted = [];
-    prodname="";
-    renderedorder="null";
-    renderedcontent = [];
     res.render('mainpage');
 });
 
@@ -48,7 +47,15 @@ app.post('/loading', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
-    res.render('index', { content: renderedcontent, order: renderedorder });
+    res.render('index', { content: renderedcontent, order: renderedorder, prodname: prodname});
+});
+
+app.get('/search-p2', (req, res) => {
+    res.render('page2', { content: renderedcontent, order: renderedorder, prodname: prodname});
+});
+
+app.get('/search-p3', (req, res) => {
+    res.render('page3', { content: renderedcontent, order: renderedorder, prodname: prodname});
 });
 
 app.post('/search', async (req, res) => { //post
@@ -63,20 +70,21 @@ app.post('/search', async (req, res) => { //post
             const contentML = await scrapeMercadoLibre(productName);
             const contentOlimpica = await scrapeOlimpica(productName);
             content = contentAlk.concat(contentExito, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista
-            contentsorted = content.slice(); // Crear una copia para ordenar
-            contentsorted.sort(function(a, b) {
-                return a.priceint - b.priceint;
-            });
+                contentsorted = content.slice(); // Crear una copia para ordenar
+                contentsorted.sort(function(a, b) {
+                    return a.priceint - b.priceint;
+                });
             prodname = productName;
             console.log('Scraped:', content);
             renderedcontent = content;
             renderedorder = "name";
             if(content.length == 0){
                 isscrapping = false;
-                res.status(500).send('Error scraping');
+                console.log('No se encontraron productos que cumplan con el criterio deseado.');
+                res.render('index', { content: content, order: "name", prodname: productName});
             } else {
                 isscrapping = false;
-                res.render('index', { content: content, order: "name" });
+                res.render('index', { content: content, order: "name", prodname: productName});
             }           
         } catch (error) {
             isscrapping = false;
@@ -88,16 +96,54 @@ app.post('/search', async (req, res) => { //post
         renderedcontent = contentsorted;
         renderedorder = "price";
         isscrapping = false;
-		res.render('index', { content: contentsorted, order: "price" });
+		res.render('index', { content: contentsorted, order: "price", prodname: productName });
 	} else {
         renderedcontent = content;
         renderedorder = "name";
         isscrapping = false;
-		res.render('index', { content: content, order: "name" });
+		res.render('index', { content: content, order: "name", prodname: productName });
 	}
     }
    }
 });
+
+app.post('/search-p2', async (req, res) => { //post
+    if(isscrapping == false){
+     isscrapping = true;
+     const productName = req.body.productName;
+     const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
+        if (order == "name"){
+            renderedcontent = contentsorted;
+            renderedorder = "price";
+            isscrapping = false;
+            res.render('page2', { content: contentsorted, order: "price", prodname: productName });
+        } else {
+            renderedcontent = content;
+            renderedorder = "name";
+            isscrapping = false;
+            res.render('page2', { content: content, order: "name", prodname: productName });
+        }    
+    }
+ });
+
+ app.post('/search-p3', async (req, res) => { //post
+    if(isscrapping == false){
+     isscrapping = true;
+     const productName = req.body.productName;
+     const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
+        if (order == "name"){
+            renderedcontent = contentsorted;
+            renderedorder = "price";
+            isscrapping = false;
+            res.render('page3', { content: contentsorted, order: "price", prodname: productName });
+        } else {
+            renderedcontent = content;
+            renderedorder = "name";
+            isscrapping = false;
+            res.render('page3', { content: content, order: "name", prodname: productName });
+        }    
+    }
+ });
 
 const PORT = 3000;
 app.listen(PORT, () => {
