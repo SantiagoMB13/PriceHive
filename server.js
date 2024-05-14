@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { scrapeMercadoLibre, scrapeAlkosto, scrapeOlimpica, scrapeExito } = require('./scraper');
+const { scrapeMercadoLibre, scrapeAlkosto, scrapeOlimpica, scrapeExito, scrapeFalabella } = require('./scraper');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -65,11 +65,13 @@ app.post('/search', async (req, res) => { //post
     const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
     if (order == "null" || prodname != productName) { // Verificar si 'order' tiene valor null o si los productos buscados son diferentes
         try {
-            const contentAlk = await scrapeAlkosto(productName);
-            const contentExito = await scrapeExito(productName);
-            const contentML = await scrapeMercadoLibre(productName);
-            const contentOlimpica = await scrapeOlimpica(productName);
-            content = contentAlk.concat(contentExito, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista
+            //const contentAlk = await scrapeAlkosto(productName);
+            //const contentExito = await scrapeExito(productName);
+            //const contentML = await scrapeMercadoLibre(productName);
+            //const contentOlimpica = await scrapeOlimpica(productName);
+            const contentFalabella = await scrapeFalabella(productName);
+            content =contentFalabella;
+            //content = contentAlk.concat(contentExito, contentFalabella, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista
                 contentsorted = content.slice(); // Crear una copia para ordenar
                 contentsorted.sort(function(a, b) {
                     return a.priceint - b.priceint;

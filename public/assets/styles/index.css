@@ -18,8 +18,8 @@ header{
 .productitem{
     display: flex;
     flex-direction: column;
-    background-color: lightgray;
-    border: 2px solid black;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50px;
     width: 42%;
     text-align: center;
     justify-content: space-evenly;
@@ -27,7 +27,7 @@ header{
 }
 
 .productitem img{
-    width: 80%;
+    width: 60%;
     height: auto
 }
 
