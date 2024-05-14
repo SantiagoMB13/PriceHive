@@ -69,8 +69,8 @@ app.post('/search', async (req, res) => { //post
             const contentExito = await scrapeExito(productName);
             const contentML = await scrapeMercadoLibre(productName);
             const contentOlimpica = await scrapeOlimpica(productName);
-            content = contentAlk.concat(contentExito, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista
-                contentsorted = content.slice(); // Crear una copia para ordenar
+            content = contentAlk.concat(contentExito, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista 
+            contentsorted = content.slice(); // Crear una copia para ordenar
                 contentsorted.sort(function(a, b) {
                     return a.priceint - b.priceint;
                 });
