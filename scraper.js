@@ -231,7 +231,7 @@ const getAlkproduct = async (productName, prodindex) => {
    let found = false;
     let productNameori = productName.trim();
     const page = await browser.newPage();
-    let link = "https://www.alkosto.com/search?text=product&sort=price-asc";
+    let link = "https://www.alkosto.com/search?text=product&sort=price-asc&range=600000-999999999";
     productName = productName.replace(/ /g, "+");
     let nuevoLink = link.replace("product", productName);
     await page.goto(nuevoLink, { timeout: 60000 }); // Aumentamos el tiempo de espera a 60 segundos
