@@ -1,11 +1,11 @@
 const { chromium } = require('playwright');
 
-const scrapeOlimpica = async (productName, refPrice) => {
+const scrapeOlimpica = async (productName) => {
     let index = 0;
     let count = 0;
     let keepsearching = true;
     let productos = [];
-    while(keepsearching==true & count < 3) {
+    while(keepsearching==true & count < 5) {
         const product = await getOliproduct(productName, index);        
          if(product !== null){
              if(product.found == false){
@@ -31,12 +31,12 @@ const getOliproduct = async (productName, prodindex) => {
    let found = false;
    const productNameori = productName.trim();
     const page = await browser.newPage();
-    let link = "https://www.olimpica.com/product?order=OrderByPriceASC"; //Navegar a olimpica, ya aplicando orden por precio
+    let link = "https://www.olimpica.com/product"; //Navegar a olimpica, ya aplicando orden por precio
     productName = productName.replace(/ /g, "%20");
     let nuevoLink = link.replace("product", productName);
     await page.goto(nuevoLink, { timeout: 60000 }); // Tiempo de espera de 60 segundos porque la pagina es pesada
     await page.waitForLoadState('domcontentloaded');
-    await new Promise(resolve => setTimeout(resolve, 4000));  
+    await new Promise(resolve => setTimeout(resolve, 4500));  
     let morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 5000 }); //Consigo los botones de mostrar más
     try{
          while(morebtn.length > 0){ //Mientras exista el botn de mostrar más, se da mueve hacia él
@@ -69,7 +69,7 @@ const getOliproduct = async (productName, prodindex) => {
             await page.waitForLoadState('domcontentloaded');
         } catch (error){}
         // Extraer los datos del producto
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 7500));
         // Extraer título
         let title;
         try{
@@ -85,7 +85,6 @@ const getOliproduct = async (productName, prodindex) => {
         try {
             price = await page.$eval('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF', element => element.innerText.trim(), { timeout: 20000 });
             price = price.replaceAll(/\s/g, '');
-            priceint = parseInt(price.replace('$', '').replaceAll('.', ''));
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Olimpica, intentando con el siguiente...");
@@ -137,7 +136,7 @@ const getOliproduct = async (productName, prodindex) => {
         found = true;
         await browser.close();
         // Retorna los datos del producto
-        return { title, price, image, description, specifications, url, found, priceint };
+        return { title, price, image, description, specifications, url, found };
     }    else {
             await browser.close();
             return { found }; 

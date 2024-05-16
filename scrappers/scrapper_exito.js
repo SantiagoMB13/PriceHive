@@ -1,13 +1,13 @@
 const { chromium } = require('playwright');
 
-const scrapeExito = async (productName, refPrice) => {
+const scrapeExito = async (productName) => {
     let index = 0;
     let count = 0;
     pagenum = 0;
     let keepsearching = true;
     let productos = [];
-    while (keepsearching == true & count < 3) {
-        const product = await getExproduct(productName, index, pagenum, refPrice);
+    while (keepsearching == true & count < 5) {
+        const product = await getExproduct(productName, index, pagenum);
         if (product !== null) {
             if(product.found == null){
                 pagenum++;
@@ -29,7 +29,7 @@ const scrapeExito = async (productName, refPrice) => {
     return productos;
 };
 
-const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
+const getExproduct = async (productName, prodindex, pagenum) => {
     const browser = await chromium.launch({
         headless: false,
         slowMo: 2000
@@ -38,13 +38,8 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
     const page = await browser.newPage()
     const baseUrl = "https://www.exito.com/s";
     const query = productName.split(' ').join('+');
-    const priceFilter = `${refPrice}-to-999999999`;
-    const url = `${baseUrl}?q=${query}&price=${priceFilter}&facets=price&sort=score_desc&page=0`;
-    console.log(url);
-    await page.goto(url)
-    await page.waitForLoadState('domcontentloaded')
-    await page.click('.sort_fs-sort__UWGKA')
-    await page.click("span:text('Menor precio')")
+    const url = `${baseUrl}?q=${query}`;
+    await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('h3[data-fs-product-card-title="true"]');
         for (let i = 0; i < pagenum; i++) { //Movernos de pagina segun se necesite
@@ -78,12 +73,10 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
 
     await page.waitForLoadState('domcontentloaded');
     if (finalFilteredItems.length > prodindex) {
-            await finalFilteredItems[prodindex].click();
-            await page.waitForLoadState('networkidle');
+                await finalFilteredItems[prodindex].click();
+                await page.waitForLoadState('domcontentloaded');
 
-        await page.waitForLoadState('networkidle');
         // Extraer los datos del producto
-
         // Extraer título
         let title;
         try {
@@ -98,7 +91,6 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
         let price;
         try {
             price = await page.$eval('.ProductPrice_container__price__XmMWA', element => element.innerText.trim());
-            priceint = parseInt(price.replace('$', '').replaceAll('.', ''));
         } catch (error) {
             await browser.close();
             console.log("Error en price en el producto " + prodindex + " de Exito, intentando con el siguiente...");
@@ -121,9 +113,7 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
         try {
             description = await page.$eval('div[data-fs-description-text=true]', element => element.innerText.trim());
         } catch (error) {
-            await browser.close();
-            console.log("Error en description en el producto " + prodindex + " de Éxito, intentando con el siguiente...");
-            return null;
+            description = 'No se encontró descripción'; //Si no se encuentra descripción, se asigna un mensaje de error
         }
         let specifications;
         try {
@@ -137,11 +127,13 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
             });
 
             // Format the extracted specifications as an unordered list
-            if(specifications == '<ul></ul>')
-                specifications = 'No se encontraron especificaciones'
+            if(specifications == '<ul></ul>'){
+                specifications = 'No se encontraron especificaciones';
+            }
             specifications = `<ul>${specifications}</ul>`;
-            if(specifications == '<ul><li>Referencia: SIN REF</li></ul>')
-                specifications = 'No se encontraron especificaciones'
+            if(specifications == '<ul><li>Referencia: SIN REF</li></ul>'){
+                specifications = 'No se encontraron especificaciones';
+            }   
         } catch (error) {
             await browser.close();
             console.log("Error en especificaciones en el producto " + prodindex + " de Exito, intentando con el siguiente...");
@@ -151,7 +143,7 @@ const getExproduct = async (productName, prodindex, pagenum, refPrice) => {
         found = true;
         await browser.close();
         // Retorna los datos del producto
-        return { title, price, image, description, specifications, url, found, priceint };
+        return { title, price, image, description, specifications, url, found };
     } else {
         let nextpage;
         try{

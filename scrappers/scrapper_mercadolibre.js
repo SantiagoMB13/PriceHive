@@ -5,7 +5,7 @@ const scrapeMercadoLibre = async (productName) => {
     let count = 0;
     let keepsearching = true;
     let productos = [];
-    while(keepsearching==true & count < 3) { //Se buscan 3 productos siempre que haya disponibles
+    while(keepsearching==true & count < 5) { //Se buscan 3 productos siempre que haya disponibles
          const product = await getMLproduct(productName, index);
          if(product !== null){
              if(product.found == false){
@@ -33,12 +33,12 @@ const scrapeMercadoLibre = async (productName) => {
        let productNameori = productName.trim();
        productName = productName.replace(/ /g, "-");//Reemplazar espacios por guiones para la URL
        const page = await browser.newPage();
-       let link = "https://listado.mercadolibre.com.co/product_OrderId_PRICE_NoIndex_True"; //Navegar a mercado libre, ya aplicando orden por precio
+       let link = "https://listado.mercadolibre.com.co/product"; //Navegar a mercado libre, ya aplicando orden por precio
        let nuevoLink = link.replace("product", productName);
        await page.goto(nuevoLink);
        await page.waitForLoadState('domcontentloaded');
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2500));
             // Filtrar por productos nuevos (se hace aqui para evitar que se pierda la categoria del producto)
             const filtronuevo = await page.waitForSelector("span.ui-search-filter-name:text('Nuevo')", { timeout: 8000 });
             await filtronuevo.click(); 
@@ -65,6 +65,7 @@ const scrapeMercadoLibre = async (productName) => {
         if (finalFilteredItems.length > prodindex) {
             await finalFilteredItems[prodindex].click();
             await page.waitForLoadState('domcontentloaded');
+            await new Promise(resolve => setTimeout(resolve, 2500));
             // Extraer los datos del producto
     
             // Extraer título
@@ -83,7 +84,6 @@ const scrapeMercadoLibre = async (productName) => {
                 price = await page.$eval('.ui-pdp-price__second-line', element => element.innerText.trim());
                 let lineas = price.split('\n');
                 price = lineas[1];
-                priceint = parseInt(price.replaceAll('.', ''));
                 price = "$"+price;
             } catch (error) { 
                 await browser.close();
@@ -136,7 +136,7 @@ const scrapeMercadoLibre = async (productName) => {
             found = true;
             await browser.close();
             // Retorna los datos del producto
-            return { title, price, image, description, specifications, url, found, priceint };
+            return { title, price, image, description, specifications, url, found };
         }    else {
                 await browser.close();
                 return { found }; //Si no hay productos por ver, se retorna un objeto con el atributo found en false

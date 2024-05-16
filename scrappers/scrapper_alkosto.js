@@ -1,12 +1,12 @@
 const { chromium } = require('playwright');
 
-const scrapeAlkosto = async (productName, refPrice) => {
+const scrapeAlkosto = async (productName) => {
     let index = 0;
     let count = 0;
     let keepsearching = true;
     let productos = [];
-    while(keepsearching==true & count < 3) {
-         const product = await getAlkproduct(productName, index, refPrice);
+    while(keepsearching==true & count < 5) {
+         const product = await getAlkproduct(productName, index);
          if(product !== null){
              if(product.found == false){
                 keepsearching = false;
@@ -23,7 +23,7 @@ const scrapeAlkosto = async (productName, refPrice) => {
         return productos;
     };
 
-    const getAlkproduct = async (productName, prodindex, refPrice) => {
+    const getAlkproduct = async (productName, prodindex) => {
         const browser = await chromium.launch({
             headless: false,
             slowMo: 500
@@ -32,8 +32,7 @@ const scrapeAlkosto = async (productName, refPrice) => {
         let found = false;
         let productNameori = productName.trim();
         const page = await browser.newPage();
-        let link = "https://www.alkosto.com/search?text=product&sort=price-asc&range=600000-999999999";
-        link = link.replace("600000", refPrice);
+        let link = "https://www.alkosto.com/search?text=product";
         productName = productName.replace(/ /g, "+");
         let nuevoLink = link.replace("product", productName);
         await page.goto(nuevoLink, { timeout: 60000 }); // Aumentamos el tiempo de espera a 60 segundos
@@ -82,7 +81,6 @@ const scrapeAlkosto = async (productName, refPrice) => {
                 price = await page.$eval('#js-original_price', element => element.innerText.trim());
                 price = price.replace(/\s/g, '');
                 price = price.replace('Hoy', '');
-                priceint = parseInt(price.replace('$', '').replaceAll('.', ''));
             } catch (error) {
                 await browser.close();
                 console.log("Error en el producto " + prodindex + " de Alkosto, intentando con el siguiente...");
@@ -131,7 +129,7 @@ const scrapeAlkosto = async (productName, refPrice) => {
             found = true;
             await browser.close();
             // Retorna los datos del producto
-            return { title, price, image, description, specifications, url, found, priceint };
+            return { title, price, image, description, specifications, url, found };
         }    else {
                 await browser.close();
                 return { found };
