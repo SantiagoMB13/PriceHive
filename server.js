@@ -1,6 +1,10 @@
 const express = require('express');
 const path = require('path');
-const { scrapeMercadoLibre, scrapeAlkosto, scrapeOlimpica, scrapeExito, scrapeFalabella } = require('./scraper');
+const scrapeAlkosto = require('./scrappers/scrapper_alkosto');
+const scrapeExito = require('./scrappers/scrapper_exito');
+const scrapeFalabella = require('./scrappers/scrapper_falabella');
+const scrapeMercadoLibre = require('./scrappers/scrapper_mercadolibre');
+const scrapeOlimpica = require('./scrappers/scrapper_olimpica');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -65,14 +69,21 @@ app.post('/search', async (req, res) => { //post
     const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
     if (order == "null" || prodname != productName) { // Verificar si 'order' tiene valor null o si los productos buscados son diferentes
         try {
-            //const contentAlk = await scrapeAlkosto(productName);
-            //const contentExito = await scrapeExito(productName);
-            //const contentML = await scrapeMercadoLibre(productName);
-            //const contentOlimpica = await scrapeOlimpica(productName);
-            const contentFalabella = await scrapeFalabella(productName);
-            content =contentFalabella;
-            //content = contentAlk.concat(contentExito, contentFalabella, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista
-                contentsorted = content.slice(); // Crear una copia para ordenar
+            const contentML = await scrapeMercadoLibre(productName);
+            let priceRef;
+            if(contentML.length > 0){ 
+                priceRef = contentML[0].priceint * 0.7; // Tomar el precio del primer producto de Mercado Libre y aplicar un descuento del 30% para referencia de precios
+            } else {
+                priceRef = 500000; // Si no se encuentra el producto en Mercado Libre, se asigna un precio de referencia de 500000
+            } 
+            const [contentAlk, contentOlimpica, contentExito , contentFalabella] = await Promise.all([
+                scrapeAlkosto(productName, priceRef),
+                scrapeOlimpica(productName),
+                scrapeExito(productName, priceRef),
+                scrapeFalabella(productName, priceRef)
+            ]);
+            content = contentAlk.concat(contentExito , contentFalabella, contentML, contentOlimpica); // Unir los resultados de los scrapers en una lista 
+            contentsorted = content.slice(); // Crear una copia para ordenar
                 contentsorted.sort(function(a, b) {
                     return a.priceint - b.priceint;
                 });
