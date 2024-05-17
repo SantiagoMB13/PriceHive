@@ -49,14 +49,17 @@ app.get('/error', (req, res) => {
     } else {
         res.redirect('/');
     }
-    
 });
 
 app.post('/loading', (req, res) => {
         firstsearch = false;
         const productName = req.body.productName;
         const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
-        res.render('loadingpage' , { productName: productName, order: order });    
+        res.render('loadingpage' , { productName: productName, order: order });  
+});
+
+app.get('/loading', (req, res) => {
+    res.redirect('/');
 });
 
 app.get('/search', (req, res) => {
@@ -231,11 +234,11 @@ function closeChromium() {
                 console.error(`Error al cerrar Chromium: ${err}`);
                 return;
                 }
-                console.log(`Chromium cerrado con éxito`);
             });
             }
         }
       }
+      console.log(`Chromium cerrado con éxito`);
     });
 }
 
