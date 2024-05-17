@@ -36,30 +36,37 @@ const getOliproduct = async (productName, prodindex) => {
     let nuevoLink = link.replace("product", productName);
     await page.goto(nuevoLink, { timeout: 60000 }); // Tiempo de espera de 60 segundos porque la pagina es pesada
     await page.waitForLoadState('domcontentloaded');
-    await new Promise(resolve => setTimeout(resolve, 4500));  
-    let morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 5000 }); //Consigo los botones de mostrar más
+    let morebtn;
+    try{
+        await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 17500 }); //Esperar a que cargue bien la página
+        morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')"); 
+    } catch(error) {} //Si no se encuentra el botón, se sigue con el proceso  
     try{
          while(morebtn.length > 0){ //Mientras exista el botn de mostrar más, se da mueve hacia él
-            //await morebtn[0].scrollIntoViewIfNeeded(); //El botón se activa cuando se scrollea más abajo de él
             await morebtn[0].click();
             await page.waitForLoadState('domcontentloaded');
-            await new Promise(resolve => setTimeout(resolve, 3000));  //Esperar a que cargue bien la página
-            morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 4000 }); //Verificar si hay más por mostrar   
+            await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 7000 });  //Esperar a que cargue bien la página
+            morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')"); //Verificar si hay más por mostrar   
          }
         } catch (error) {} //Si ya no está el botón, se sigue con el proceso (por si acaso)
 
     // Seleccionar los productos de la lista
     await page.waitForLoadState('domcontentloaded');  
-    await new Promise(resolve => setTimeout(resolve, 3000));                       
+    await new Promise(resolve => setTimeout(resolve, 3500));                       
     const items = await page.$$('span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName.t-body', { timeout: 15000 });
     const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
     // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
     const filteredItems = await Promise.all(items.map(async (element) => {
         let elementTextLowercase = await element.innerText();
         elementTextLowercase = elementTextLowercase.toLowerCase();
-        return productNameLowercase.split(' ').every(word =>
-            elementTextLowercase.includes(word)
-          ) && !elementTextLowercase.includes("reacondicionado"); //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
+        const productWords = productNameLowercase.split(' ');
+        const wordBoundaryCheck = (word, text) => {
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            return regex.test(text);
+        };
+        return productWords.every(word => wordBoundaryCheck(word, elementTextLowercase)) && !elementTextLowercase.includes("reacondicionado") && //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
+        !elementTextLowercase.includes("cargador") && !elementTextLowercase.includes("charger") && !elementTextLowercase.includes("cable") && !elementTextLowercase.includes("repuesto") && //Se filtran los productos que no sean cargadores o respuestos
+        !elementTextLowercase.includes("forro") && !elementTextLowercase.includes("case") && !elementTextLowercase.includes("estuche") && !elementTextLowercase.includes("protector") && !elementTextLowercase.includes("templado") && !elementTextLowercase.includes("carcasa"); //Se filtran los productos que no sean forros o protectores
     }));
     // Filtrar los elementos basados en el resultado de las llamadas asíncronas
     const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
@@ -69,11 +76,12 @@ const getOliproduct = async (productName, prodindex) => {
             await page.waitForLoadState('domcontentloaded');
         } catch (error){}
         // Extraer los datos del producto
-        await new Promise(resolve => setTimeout(resolve, 7500));
+        await new Promise(resolve => setTimeout(resolve, 5000));
         // Extraer título
         let title;
         try{
-            title = await page.$eval('.vtex-store-components-3-x-productNameContainer.vtex-store-components-3-x-productNameContainer--quickview.mv0.t-heading-4', element => element.innerText.trim(), { timeout: 20000 }); 
+            await page.waitForSelector('.vtex-store-components-3-x-productNameContainer.vtex-store-components-3-x-productNameContainer--quickview.mv0.t-heading-4', { timeout: 20000 });
+            title = await page.$eval('.vtex-store-components-3-x-productNameContainer.vtex-store-components-3-x-productNameContainer--quickview.mv0.t-heading-4', element => element.innerText.trim()); 
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Olimpica, intentando con el siguiente...");
@@ -83,7 +91,8 @@ const getOliproduct = async (productName, prodindex) => {
         // Extraer precio
         let price;
         try {
-            price = await page.$eval('.vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF', element => element.innerText.trim(), { timeout: 20000 });
+            await page.waitForSelector('.olimpica-fractional-selling-0-x-fractional_selling__wrapper .vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF', { timeout: 20000 });
+            price = await page.$eval('.olimpica-fractional-selling-0-x-fractional_selling__wrapper .vtex-product-price-1-x-sellingPrice--hasListPrice--dynamicF', element => element.innerText.trim());
             price = price.replaceAll(/\s/g, '');
         } catch (error) {
             await browser.close();
@@ -94,7 +103,8 @@ const getOliproduct = async (productName, prodindex) => {
         // Imagen
         let image;
         try{
-            image = await page.$eval('.vtex-store-components-3-x-productImageTag.vtex-store-components-3-x-productImageTag--main', element => element.getAttribute('src'), { timeout: 20000 });
+            await page.waitForSelector('.vtex-store-components-3-x-productImageTag.vtex-store-components-3-x-productImageTag--main', { timeout: 20000 });
+            image = await page.$eval('.vtex-store-components-3-x-productImageTag.vtex-store-components-3-x-productImageTag--main', element => element.getAttribute('src'));
             image = "<img src='" + image + "' alt='Imagen del producto'>";
         } catch (error) {
                 await browser.close();
@@ -105,7 +115,8 @@ const getOliproduct = async (productName, prodindex) => {
         //Descripción
         let description;
         try {
-            description = await page.$eval('.vtex-store-components-3-x-content.h-auto', element => element.innerHTML, { timeout: 20000 });
+            await page.waitForSelector('.vtex-store-components-3-x-content.h-auto', { timeout: 20000 });
+            description = await page.$eval('.vtex-store-components-3-x-content.h-auto', element => element.innerHTML);
         } catch (error) {
             await browser.close();
             console.log("Error en el producto " + prodindex + " de Olimpica, intentando con el siguiente...");
@@ -115,8 +126,8 @@ const getOliproduct = async (productName, prodindex) => {
         // Extraer especificaciones
         let specifications;
         try { //Tratar de mostrar las especificaciones en la página
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const filtronuevo = await page.waitForSelector(".vtex-disclosure-layout-1-x-trigger.vtex-disclosure-layout-1-x-trigger--product-specifications.vtex-disclosure-layout-1-x-trigger--hidden.vtex-disclosure-layout-1-x-trigger--product-specifications--hidden", { timeout: 10000 });
+            await page.waitForSelector(".vtex-disclosure-layout-1-x-trigger.vtex-disclosure-layout-1-x-trigger--product-specifications.vtex-disclosure-layout-1-x-trigger--hidden.vtex-disclosure-layout-1-x-trigger--product-specifications--hidden", { timeout: 10000 });
+            const filtronuevo = await page.waitForSelector(".vtex-disclosure-layout-1-x-trigger.vtex-disclosure-layout-1-x-trigger--product-specifications.vtex-disclosure-layout-1-x-trigger--hidden.vtex-disclosure-layout-1-x-trigger--product-specifications--hidden");
             await filtronuevo.click(); 
         } catch (error) { 
             await browser.close();
@@ -125,7 +136,8 @@ const getOliproduct = async (productName, prodindex) => {
         }  
 
         try { //Tratar de obtener las especificaciones que conseguimos mostrar en la página
-            specifications = await page.$eval('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', element => element.innerHTML, { timeout: 20000 });
+            await page.waitForSelector('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', { timeout: 10000 });
+            specifications = await page.$eval('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', element => element.innerHTML);
             specifications = "<table>" + specifications + "</table>";
         } catch (error) {
                 await browser.close();

@@ -55,9 +55,14 @@ const scrapeMercadoLibre = async (productName) => {
         const filteredItems = await Promise.all(items.map(async (element) => {
             let elementTextLowercase = await element.innerText();
             elementTextLowercase = elementTextLowercase.toLowerCase();
-            return productNameLowercase.split(' ').every(word =>
-                elementTextLowercase.includes(word)
-              ) && !elementTextLowercase.includes("reacondicionado");
+            const productWords = productNameLowercase.split(' ');
+            const wordBoundaryCheck = (word, text) => {
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                return regex.test(text);
+            };
+            return productWords.every(word => wordBoundaryCheck(word, elementTextLowercase)) && !elementTextLowercase.includes("reacondicionado") && //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
+            !elementTextLowercase.includes("cargador") && !elementTextLowercase.includes("charger") && !elementTextLowercase.includes("cable") && !elementTextLowercase.includes("repuesto") && //Se filtran los productos que no sean cargadores o respuestos
+            !elementTextLowercase.includes("forro") && !elementTextLowercase.includes("case") && !elementTextLowercase.includes("estuche") && !elementTextLowercase.includes("protector") && !elementTextLowercase.includes("templado") && !elementTextLowercase.includes("carcasa"); //Se filtran los productos que no sean forros o protectores
         }));
         // Filtrar los elementos basados en el resultado de las llamadas asíncronas
         const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
@@ -65,7 +70,7 @@ const scrapeMercadoLibre = async (productName) => {
         if (finalFilteredItems.length > prodindex) {
             await finalFilteredItems[prodindex].click();
             await page.waitForLoadState('domcontentloaded');
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            await new Promise(resolve => setTimeout(resolve, 2000));
             // Extraer los datos del producto
     
             // Extraer título
@@ -103,7 +108,7 @@ const scrapeMercadoLibre = async (productName) => {
     
             // Desplegar descripción completa
             try {
-                const fulldesc = await page.waitForSelector("a.ui-pdp-collapsable__action[title='Ver descripción completa']", { timeout: 3000 });
+                const fulldesc = await page.waitForSelector("a.ui-pdp-collapsable__action[title='Ver descripción completa']");
             await fulldesc.click();
             } catch (error) {}
             

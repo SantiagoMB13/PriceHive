@@ -51,7 +51,7 @@ app.post('/loading', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
-    res.render('index', { content: renderedcontent, order: renderedorder, prodname: prodname});
+    res.render('page1', { content: renderedcontent, order: renderedorder, prodname: prodname});
 });
 
 app.get('/search-p2', (req, res) => {
@@ -67,8 +67,9 @@ app.post('/search', async (req, res) => { //post
     isscrapping = true;
     const productName = req.body.productName;
     const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
-    if (order == "null" || prodname != productName) { // Verificar si 'order' tiene valor null o si los productos buscados son diferentes
+    if (prodname != productName) { // Verificar si 'order' tiene valor null o si los productos buscados son diferentes
         try {
+            content = []; // Limpiar la lista de productos
              let [contentAlk, contentExito, contentFalabella, contentOlimpica, contentML] = await Promise.all([
                 scrapeAlkosto(productName),
                 scrapeExito(productName),
@@ -86,8 +87,6 @@ app.post('/search', async (req, res) => { //post
             }
             for (let i = 0; i < contentFalabella.length; i++){
                 contentFalabella[i].priceint = parseInt(contentFalabella[i].price.replace('$', '').replaceAll('.', ''));
-                console.log(contentFalabella[i].priceint);
-                console.log(contentFalabella[i].price);
             }
             for (let i = 0; i < contentML.length; i++){
                 contentML[i].priceint = parseInt(contentML[i].price.replace('$', '').replaceAll('.', ''));
@@ -95,7 +94,6 @@ app.post('/search', async (req, res) => { //post
             for (let i = 0; i < contentOlimpica.length; i++){
                 contentOlimpica[i].priceint = parseInt(contentOlimpica[i].price.replace('$', '').replaceAll('.', ''));
             }
-
             //Ordenamos los productos por precio
             contentAlk = contentAlk.sort(function(a, b) {
                 return a.priceint - b.priceint;
@@ -129,18 +127,18 @@ app.post('/search', async (req, res) => { //post
                     return a.priceint - b.priceint;
                 });
             prodname = productName;
-            //console.log('Scraped:', content);
             renderedcontent = content;
             renderedorder = "name";
             if(content.length == 0){
                 isscrapping = false;
                 console.log('No se encontraron productos que cumplan con el criterio deseado.');
-                res.render('index', { content: content, order: "name", prodname: productName});
+                res.render('page1', { content: content, order: "name", prodname: productName});
             } else {
                 isscrapping = false;
-                res.render('index', { content: content, order: "name", prodname: productName});
+                res.render('page1', { content: content, order: "name", prodname: productName});
             }           
         } catch (error) {
+            console.error('Error inesperado:', error);
             isscrapping = false;
             res.status(500).send('Error scraping');
         }
@@ -150,12 +148,12 @@ app.post('/search', async (req, res) => { //post
         renderedcontent = contentsorted;
         renderedorder = "price";
         isscrapping = false;
-		res.render('index', { content: contentsorted, order: "price", prodname: productName });
+		res.render('page1', { content: contentsorted, order: "price", prodname: productName });
 	} else {
         renderedcontent = content;
         renderedorder = "name";
         isscrapping = false;
-		res.render('index', { content: content, order: "name", prodname: productName });
+		res.render('page1', { content: content, order: "name", prodname: productName });
 	}
     }
    }

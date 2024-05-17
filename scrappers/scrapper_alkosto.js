@@ -47,9 +47,14 @@ const scrapeAlkosto = async (productName) => {
             let elementTextLowercase = await element.innerText();
             elementTextLowercase = elementTextLowercase.toLowerCase();
             elementTextLowercase = elementTextLowercase.replace(/[\s\u00A0\u00A0]/g, " "); //Reemplazar espacios y espacios no rompibles por un solo espacio
-            return productNameLowercase.split(' ').every(word =>
-                elementTextLowercase.includes(word)
-              ) && !elementTextLowercase.includes("reacondicionado"); //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
+            const productWords = productNameLowercase.split(' ');
+            const wordBoundaryCheck = (word, text) => {
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                return regex.test(text);
+            };
+            return productWords.every(word => wordBoundaryCheck(word, elementTextLowercase)) && !elementTextLowercase.includes("reacondicionado") && //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
+            !elementTextLowercase.includes("cargador") && !elementTextLowercase.includes("charger") && !elementTextLowercase.includes("cable") && !elementTextLowercase.includes("repuesto") && //Se filtran los productos que no sean cargadores o respuestos
+            !elementTextLowercase.includes("forro") && !elementTextLowercase.includes("case") && !elementTextLowercase.includes("estuche") && !elementTextLowercase.includes("protector") && !elementTextLowercase.includes("templado") && !elementTextLowercase.includes("carcasa"); //Se filtran los productos que no sean forros o protectores
         }));
             // Filtrar los elementos basados en el resultado de las llamadas asíncronas
             const finalFilteredItems = items.filter((element, index) => filteredItems[index]);
@@ -60,15 +65,13 @@ const scrapeAlkosto = async (productName) => {
                 await finalFilteredItems[prodindex].click();
                 await new Promise(resolve => setTimeout(resolve, 5500));
                 await page.waitForLoadState('domcontentloaded');
-            } catch (error) {
-                console.log(error);
-            }
+            } catch (error) {}
             // Extraer los datos del producto
     
             // Título
             let title;
             try{
-                title = await page.$eval('.new-container__header__title', element => element.innerText.trim(), { timeout: 10000 }); 
+                title = await page.$eval('.new-container__header__title', element => element.innerText.trim()); 
             } catch (error) {
                 await browser.close();
                 console.log("Error en el producto " + prodindex + " de Alkosto, intentando con el siguiente...");
