@@ -20,6 +20,9 @@ const scrapeOlimpica = async (productName) => {
             keepsearching = false;
         }
     }
+        if (productos.length == 0){
+            console.log("No se encontraron productos en Olímpica");
+        }
         return productos;
     };
 
@@ -145,10 +148,11 @@ const getOliproduct = async (productName, prodindex) => {
                 return null;           
         }
         const url = page.url();
+        const seller = "Olímpica"
         found = true;
         await browser.close();
         // Retorna los datos del producto
-        return { title, price, image, description, specifications, url, found };
+        return { title, price, image, description, specifications, url, found, seller };
     }    else {
             await browser.close();
             return { found }; 

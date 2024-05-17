@@ -20,6 +20,9 @@ const scrapeAlkosto = async (productName) => {
             keepsearching = false;
         }
     }
+        if (productos.length == 0){
+            console.log("No se encontraron productos en Alkosto");
+        }
         return productos;
     };
 
@@ -28,7 +31,7 @@ const scrapeAlkosto = async (productName) => {
             headless: false,
             slowMo: 500
         });
-    
+
         let found = false;
         let productNameori = productName.trim();
         const page = await browser.newPage();
@@ -129,10 +132,11 @@ const scrapeAlkosto = async (productName) => {
                 
             }
             const url = page.url();
+            const seller = "Alkosto"
             found = true;
             await browser.close();
             // Retorna los datos del producto
-            return { title, price, image, description, specifications, url, found };
+            return { title, price, image, description, specifications, url, found, seller};
         }    else {
                 await browser.close();
                 return { found };

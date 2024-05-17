@@ -20,6 +20,9 @@ const scrapeMercadoLibre = async (productName) => {
             keepsearching = false;
         }
     }
+        if (productos.length == 0){
+            console.log("No se encontraron productos en Mercado Libre");
+        }
         return productos;
     };
 
@@ -138,10 +141,11 @@ const scrapeMercadoLibre = async (productName) => {
                 
             }
             const url = page.url();
+            const seller = "Mercado Libre"
             found = true;
             await browser.close();
             // Retorna los datos del producto
-            return { title, price, image, description, specifications, url, found };
+            return { title, price, image, description, specifications, url, found, seller };
         }    else {
                 await browser.close();
                 return { found }; //Si no hay productos por ver, se retorna un objeto con el atributo found en false

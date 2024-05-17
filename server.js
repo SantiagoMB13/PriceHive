@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { exec } = require('child_process');
 const scrapeAlkosto = require('./scrappers/scrapper_alkosto');
 const scrapeExito = require('./scrappers/scrapper_exito');
 const scrapeFalabella = require('./scrappers/scrapper_falabella');
@@ -22,13 +23,14 @@ let prodname="";
 let renderedorder="null";
 let renderedcontent = [];
 let isscrapping = false;
+let firstsearch = true;
 
 // Middleware para redirigir a la página principal si la URL no es '/' o '/search'
 app.use((req, res, next) => {
     if (req.url !== '/' && req.url !== '/search' && req.url !== '/loading' && req.url !== '/error' && req.url !== '/search-p2' && req.url !== '/search-p3') {
         res.redirect('/');
     } else {
-        if((req.url == '/search-p2' && renderedcontent.length < 6) || (req.url == '/search-p3' && renderedcontent.length < 11)){
+        if((req.url == '/search' && firstsearch == true) || (req.url == '/search-p2' && renderedcontent.length < 6) || (req.url == '/search-p3' && renderedcontent.length < 11)){
              res.redirect('/');
          } else {
              next();
@@ -41,10 +43,17 @@ app.get('/', (req, res) => {
 });
 
 app.get('/error', (req, res) => {
-    res.render('errorpage');
+    const referer = req.headers.referer; //Obtiene la URL de la página que hizo la solicitud
+    if (referer && referer.endsWith('/loading')) { //Solo se debe poder a acceder a error desde /loading
+        res.render('errorpage');
+    } else {
+        res.redirect('/');
+    }
+    
 });
 
 app.post('/loading', (req, res) => {
+        firstsearch = false;
         const productName = req.body.productName;
         const order = req.body.order; // Obtener el parámetro 'order' de la solicitud
         res.render('loadingpage' , { productName: productName, order: order });    
@@ -139,7 +148,9 @@ app.post('/search', async (req, res) => { //post
             }           
         } catch (error) {
             console.error('Error inesperado:', error);
+            closeChromium();
             isscrapping = false;
+            console.log("Redirigiendo a la página de error...");
             res.status(500).send('Error scraping');
         }
     } else {
@@ -196,6 +207,37 @@ app.post('/search-p2', async (req, res) => { //post
         }    
     }
  });
+
+function closeChromium() {
+    console.log("Cerrando procesos de Chromium residuales...");
+    exec('tasklist /FI "IMAGENAME eq chrome.exe" /V /FO CSV', (err, stdout, stderr) => {
+      if (err) {
+        console.error(`Error al obtener la lista de procesos: ${err}`);
+        return;
+      }
+  
+      // Filtrar los procesos para identificar Chromium
+      const lines = stdout.split('\n');
+      for (let i = 1; i < lines.length; i++) {
+        const columns = lines[i].split('","');
+        const description = columns[8]; // El índice puede variar según el sistema operativo, este funciona en windows
+        // Comprueba si la descripción contiene "Chromium"
+        if(description){
+            if (description.includes("Chromium")) {
+            const pid = columns[1]; // Obtener el PID del proceso
+            // Cerrar el proceso de Chromium por su PID
+            exec(`taskkill /PID ${pid} /F`, (err, stdout, stderr) => {
+                if (err) {
+                console.error(`Error al cerrar Chromium: ${err}`);
+                return;
+                }
+                console.log(`Chromium cerrado con éxito`);
+            });
+            }
+        }
+      }
+    });
+}
 
 const PORT = 3000;
 app.listen(PORT, () => {

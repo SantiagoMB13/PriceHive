@@ -20,6 +20,9 @@ const scrapeExito = async (productName) => {
             keepsearching = false;
         }
     }
+    if (productos.length == 0){
+        console.log("No se encontraron productos en Éxito");
+    }
     return productos;
 };
 
@@ -126,10 +129,11 @@ const getExproduct = async (productName, prodindex) => {
             return null;
         }
         const url = page.url();
+        const seller = "Éxito"
         found = true;
         await browser.close();
         // Retorna los datos del producto
-        return { title, price, image, description, specifications, url, found };
+        return { title, price, image, description, specifications, url, found, seller };
     } else {
         await browser.close();
         return { found };
