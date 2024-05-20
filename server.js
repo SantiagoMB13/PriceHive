@@ -141,6 +141,7 @@ app.post('/search', async (req, res) => { //post
             prodname = productName;
             renderedcontent = content;
             renderedorder = "name";
+            closeChromium();
             if(content.length == 0){
                 isscrapping = false;
                 console.log('No se encontraron productos que cumplan con el criterio deseado.');

@@ -28,7 +28,7 @@ const scrapeMercadoLibre = async (productName) => {
 
     const getMLproduct = async (productName, prodindex) => {
         const browser = await chromium.launch({
-            headless: false,
+            headless: true,
             slowMo: 500
         });
     
@@ -41,7 +41,7 @@ const scrapeMercadoLibre = async (productName) => {
        await page.goto(nuevoLink);
        await page.waitForLoadState('domcontentloaded');
         try {
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            await new Promise(resolve => setTimeout(resolve, 3000));
             // Filtrar por productos nuevos (se hace aqui para evitar que se pierda la categoria del producto)
             const filtronuevo = await page.waitForSelector("span.ui-search-filter-name:text('Nuevo')", { timeout: 8000 });
             await filtronuevo.click(); 
@@ -73,7 +73,7 @@ const scrapeMercadoLibre = async (productName) => {
         if (finalFilteredItems.length > prodindex) {
             await finalFilteredItems[prodindex].click();
             await page.waitForLoadState('domcontentloaded');
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2500));
             // Extraer los datos del producto
     
             // Extraer título

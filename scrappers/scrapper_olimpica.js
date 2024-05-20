@@ -28,7 +28,7 @@ const scrapeOlimpica = async (productName) => {
 
 const getOliproduct = async (productName, prodindex) => {
     const browser = await chromium.launch({
-        headless: false,
+        headless: true,
         slowMo: 500
     });
    let found = false;
@@ -41,21 +41,21 @@ const getOliproduct = async (productName, prodindex) => {
     await page.waitForLoadState('domcontentloaded');
     let morebtn;
     try{
-        await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 17500 }); //Esperar a que cargue bien la página
+        await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 18000 }); //Esperar a que cargue bien la página
         morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')"); 
     } catch(error) {} //Si no se encuentra el botón, se sigue con el proceso  
     try{
          while(morebtn.length > 0){ //Mientras exista el botn de mostrar más, se da mueve hacia él
             await morebtn[0].click();
             await page.waitForLoadState('domcontentloaded');
-            await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 7000 });  //Esperar a que cargue bien la página
+            await page.waitForSelector(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')", { timeout: 7500 });  //Esperar a que cargue bien la página
             morebtn = await page.$$(".vtex-button__label.flex.items-center.justify-center.h-100.ph5:has-text('Mostrar Más')"); //Verificar si hay más por mostrar   
          }
         } catch (error) {} //Si ya no está el botón, se sigue con el proceso (por si acaso)
 
     // Seleccionar los productos de la lista
     await page.waitForLoadState('domcontentloaded');  
-    await new Promise(resolve => setTimeout(resolve, 3500));                       
+    await new Promise(resolve => setTimeout(resolve, 4000));                       
     const items = await page.$$('span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName.t-body', { timeout: 15000 });
     const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
     // Usar Promise.all para esperar que todas las llamadas asíncronas se completen

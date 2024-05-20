@@ -28,7 +28,7 @@ const scrapeExito = async (productName) => {
 
 const getExproduct = async (productName, prodindex) => {
     const browser = await chromium.launch({
-        headless: false,
+        headless: true,
         slowMo: 2000
     });
     let found = false;
@@ -39,7 +39,7 @@ const getExproduct = async (productName, prodindex) => {
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('h3[data-fs-product-card-title="true"]');
-        await page.waitForSelector('h3[data-fs-product-card-title="true"]', { timeout: 15000 });
+        await page.waitForSelector('h3[data-fs-product-card-title="true"]', { timeout: 16000 });
         await new Promise(resolve => setTimeout(resolve, 2000));
         const items = await page.$$('h3[data-fs-product-card-title="true"]'); // Obtener todos los productos de la página
         const productNameLowercase = productName.toLowerCase().trim(); // Convertir el nombre del producto a minúsculas
@@ -64,7 +64,7 @@ const getExproduct = async (productName, prodindex) => {
     if (finalFilteredItems.length > prodindex) {
                 await finalFilteredItems[prodindex].click();
                 await page.waitForLoadState('domcontentloaded');
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, 3000));
         // Extraer los datos del producto
         // Extraer título
         let title;

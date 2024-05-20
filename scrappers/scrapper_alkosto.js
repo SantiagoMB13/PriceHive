@@ -28,7 +28,7 @@ const scrapeAlkosto = async (productName) => {
 
     const getAlkproduct = async (productName, prodindex) => {
         const browser = await chromium.launch({
-            headless: false,
+            headless: true,
             slowMo: 500
         });
 
@@ -42,7 +42,7 @@ const scrapeAlkosto = async (productName) => {
         await page.waitForLoadState('domcontentloaded');
     
         // Seleccionar el primer producto de la lista
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 4000));
         const items = await page.$$('.product__item__top__title.js-algolia-product-click.js-algolia-product-title', { timeout: 4000 });
             const productNameLowercase = productNameori.toLowerCase(); // Convertir el nombre del producto a minúsculas
         // Usar Promise.all para esperar que todas las llamadas asíncronas se completen
@@ -66,7 +66,7 @@ const scrapeAlkosto = async (productName) => {
         if (finalFilteredItems.length > prodindex) {
             try{
                 await finalFilteredItems[prodindex].click();
-                await new Promise(resolve => setTimeout(resolve, 5500));
+                await new Promise(resolve => setTimeout(resolve, 6000)); //Esperar a que cargue bien la página
                 await page.waitForLoadState('domcontentloaded');
             } catch (error) {}
             // Extraer los datos del producto

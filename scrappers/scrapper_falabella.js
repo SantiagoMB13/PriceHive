@@ -27,7 +27,7 @@ const scrapeFalabella = async (productName) => {
 };
 const getFLproduct = async (productName, prodindex) => {
     const browser = await chromium.launch({
-        headless: false,
+        headless: true,
         slowMo: 2000
     });
     let found = false;
@@ -37,10 +37,10 @@ const getFLproduct = async (productName, prodindex) => {
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     await page.click('.jsx-1051336967');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     await page.click("button:text('Recomendados')");
     await page.waitForLoadState('domcontentloaded');
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 2500));
     const items = await page.$$('.jsx-1484439449'); // Obtener todos los productos de la página
     const productNameLowercase = productName.toLowerCase().trim(); // Convertir el nombre del producto a minúsculas
     if (items.length == 0) { //Si no se encuentran productos en la página se detiene la búsqueda
@@ -71,7 +71,7 @@ const getFLproduct = async (productName, prodindex) => {
         // Extraer título
         let title;
         try {
-            title = await page.$eval('.jsx-1680787435', element => element.innerText.trim(), { timeout: 10000 });
+            title = await page.$eval('.jsx-1680787435', element => element.innerText.trim(), { timeout: 12000 });
         } catch (error) {
             await browser.close();
             console.log("Error en title en el producto " + prodindex + " de Falabella, intentando con el siguiente...");
