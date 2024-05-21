@@ -6,129 +6,159 @@
     <title>PriceHive</title>
     <link rel="stylesheet" href="assets/styles/page3.css">
     <script src="scripts/navigation.js"></script>
+    <script src="scripts/toggleContent.js"></script>
 </head>
 <body>
     <header>
         <img class="logo" src="assets/images/logo.png" alt="Imagen logo" onclick="navigateToMain()">
-    <h1>PriceHive</h1>
-    <form action="/loading" method="post">
-        <input type="text" name="productName" placeholder="Ingrese el producto a buscar">
-        <input type="hidden" name="order" value= "<%= order %>" >
-        <button type="submit">Buscar</button>
-    </form>
+        <h1>PriceHive</h1>
+        <form action="/loading" method="post">
+            <input type="text" name="productName" placeholder="Ingrese el producto a buscar">
+            <input type="hidden" name="order" value="<%= order %>">
+            <button type="submit">Buscar</button>
+        </form>
     </header>
-    <% if(content && content.length > 10) { %>  
+    <% if(content && content.length > 10) { %>
         <div class="sortrow">
             <h2>Resultados de la búsqueda:</h2>
-            <% if(order == "name") { %>  
-            <button onclick="renderSearchP3Results('<%= prodname %>', '<%= order %>')" class="btn">Ordenar por precio</button>
+            <% if(order == "name") { %>
+                <button onclick="renderSearchP3Results('<%= prodname %>', '<%= order %>')" class="btn">Ordenar por precio</button>
             <% } else { %>
                 <button onclick="renderSearchP3Results('<%= prodname %>', '<%= order %>')" class="btn">Ordenar por almacén</button>
-              <% } %>
+            <% } %>
         </div>
         <div class="productrow">
-        <% if(content[10]) { %>
-        <div class="productitem">
-            <div><%- content[10].image %></div>
-            <h2><%= content[10].title %></h2>
-            <div class="contprecio"><%- content[10].price %></div>
-            <h3>Descripción:</h3>
-            <div><%- content[10].description %></div>
-            <h3>Especificaciones:</h3>
-            <div class="especificaciones"><%- content[10].specifications %></div>
-            <h3>Tienda:</h3>
-            <div><%- content[10].seller %></div>
-            <a href="<%= content[10].url %>" target="_blank">
-                <button class="btn mtop">Comprar</button>
-            </a>
-        </div>
-        <% } %>
-        <% if(content[11]) { %>
-        <div class="productitem">
-            <div><%- content[11].image %></div>
-            <h2><%= content[11].title %></h2>
-            <div class="contprecio"><%- content[11].price %></div>
-            <h3>Descripción:</h3>
-            <div><%- content[11].description %></div>
-            <h3>Especificaciones:</h3>
-            <div class="especificaciones"><%- content[11].specifications %></div>
-            <h3>Tienda:</h3>
-            <div><%- content[11].seller %></div>
-            <a href="<%= content[11].url %>" target="_blank">
-                <button class="btn mtop">Comprar</button>
-            </a>
-        </div>
-        <% } %>
-        </div>
-        <div class="productrow">
-        <% if(content[12]) { %>
-            <div class="productitem">
-            <div><%- content[12].image %></div>
-            <h2><%= content[12].title %></h2>
-            <div class="contprecio"><%- content[12].price %></div>
-            <h3>Descripción:</h3>
-            <div><%- content[12].description %></div>
-            <h3>Especificaciones:</h3>
-            <div class="especificaciones"><%- content[12].specifications %></div>
-            <h3>Tienda:</h3>
-            <div><%- content[12].seller %></div>
-            <a href="<%= content[12].url %>" target="_blank">
-                <button class="btn mtop">Comprar</button>
-            </a>
-            </div>
-        <% } %>
-        <% if(content[13]) { %>
-            <div class="productitem">
-            <div><%- content[13].image %></div>
-            <h2><%= content[13].title %></h2>
-            <div class="contprecio"><%- content[13].price %></div>
-            <h3>Descripción:</h3>
-            <div><%- content[13].description %></div>
-            <h3>Especificaciones:</h3>
-            <div class="especificaciones"><%- content[13].specifications %></div>
-            <h3>Tienda:</h3>
-            <div><%- content[13].seller %></div>
-            <a href="<%= content[13].url %>" target="_blank">
-                <button class="btn mtop">Comprar</button>
-            </a>
-            </div>
-        <% } %>
+            <% if(content[10]) { %>
+                <div class="productitem">
+                    <div><%- content[10].image %></div>
+                    <h2><%= content[10].title %></h2>
+                    <div class="contprecio"><%- content[10].price %></div>
+                    <h3>Descripción:</h3>
+                    <div class="description" id="description-10">
+                        <div class="text-content"><%- content[10].description %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('description-10')">Leer más</span>
+                    <h3>Especificaciones:</h3>
+                    <div class="especificaciones" id="especificacion-10">
+                        <div class="especificacion-text"><%- content[10].specifications %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('especificacion-10')">Leer más</span>
+                    <h3>Tienda:</h3>
+                    <div><%- content[10].seller %></div>
+                    <a href="<%= content[10].url %>" target="_blank">
+                        <button class="btn mtop">Comprar</button>
+                    </a>
+                </div>
+            <% } %>
+            <% if(content[11]) { %>
+                <div class="productitem">
+                    <div><%- content[11].image %></div>
+                    <h2><%= content[11].title %></h2>
+                    <div class="contprecio"><%- content[11].price %></div>
+                    <h3>Descripción:</h3>
+                    <div class="description" id="description-11">
+                        <div class="text-content"><%- content[11].description %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('description-11')">Leer más</span>
+                    <h3>Especificaciones:</h3>
+                    <div class="especificaciones" id="especificacion-11">
+                        <div class="especificacion-text"><%- content[11].specifications %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('especificacion-11')">Leer más</span>
+                    <h3>Tienda:</h3>
+                    <div><%- content[11].seller %></div>
+                    <a href="<%= content[11].url %>" target="_blank">
+                        <button class="btn mtop">Comprar</button>
+                    </a>
+                </div>
+            <% } %>
         </div>
         <div class="productrow">
-        <% if(content[14]) { %>
-            <div class="productitem">
-            <div><%- content[14].image %></div>
-            <h2><%= content[14].title %></h2>
-            <div class="contprecio"><%- content[14].price %></div>
-            <h3>Descripción:</h3>
-            <div><%- content[14].description %></div>
-            <h3>Especificaciones:</h3>
-            <div class="especificaciones"><%- content[14].specifications %></div>
-            <h3>Tienda:</h3>
-            <div><%- content[14].seller %></div>
-            <a href="<%= content[14].url %>" target="_blank">
-                <button class="btn mtop">Comprar</button>
-            </a>
-            </div>
-        <% } %>
+            <% if(content[12]) { %>
+                <div class="productitem">
+                    <div><%- content[12].image %></div>
+                    <h2><%= content[12].title %></h2>
+                    <div class="contprecio"><%- content[12].price %></div>
+                    <h3>Descripción:</h3>
+                    <div class="description" id="description-12">
+                        <div class="text-content"><%- content[12].description %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('description-12')">Leer más</span>
+                    <h3>Especificaciones:</h3>
+                    <div class="especificaciones" id="especificacion-12">
+                        <div class="especificacion-text"><%- content[12].specifications %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('especificacion-12')">Leer más</span>
+                    <h3>Tienda:</h3>
+                    <div><%- content[12].seller %></div>
+                    <a href="<%= content[12].url %>" target="_blank">
+                        <button class="btn mtop">Comprar</button>
+                    </a>
+                </div>
+            <% } %>
+            <% if(content[13]) { %>
+                <div class="productitem">
+                    <div><%- content[13].image %></div>
+                    <h2><%= content[13].title %></h2>
+                    <div class="contprecio"><%- content[13].price %></div>
+                    <h3>Descripción:</h3>
+                    <div class="description" id="description-13">
+                        <div class="text-content"><%- content[13].description %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('description-13')">Leer más</span>
+                    <h3>Especificaciones:</h3>
+                    <div class="especificaciones" id="especificacion-13">
+                        <div class="especificacion-text"><%- content[13].specifications %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('especificacion-13')">Leer más</span>
+                    <h3>Tienda:</h3>
+                    <div><%- content[13].seller %></div>
+                    <a href="<%= content[13].url %>" target="_blank">
+                        <button class="btn mtop">Comprar</button>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+        <div class="productrow">
+            <% if(content[14]) { %>
+                <div class="productitem">
+                    <div><%- content[14].image %></div>
+                    <h2><%= content[14].title %></h2>
+                    <div class="contprecio"><%- content[14].price %></div>
+                    <h3>Descripción:</h3>
+                    <div class="description" id="description-14">
+                        <div class="text-content"><%- content[14].description %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('description-14')">Leer más</span>
+                    <h3>Especificaciones:</h3>
+                    <div class="especificaciones" id="especificacion-14">
+                        <div class="especificacion-text"><%- content[14].specifications %></div>
+                    </div>
+                    <span class="more-button" onclick="toggleContent('especificacion-14')">Leer más</span>
+                    <h3>Tienda:</h3>
+                    <div><%- content[14].seller %></div>
+                    <a href="<%= content[14].url %>" target="_blank">
+                        <button class="btn mtop">Comprar</button>
+                    </a>
+                </div>
+            <% } %>
         </div>
         <footer class="navfooter">
             <div class="navcont">
-            <button class="btn mleft" onclick="navigateToP2()"> &lt; Página anterior </button>
-            <div class="navtextcont">
-            <button class="navtext pseudolink" onclick="navigateToP1()"><b><u>1</u></b></button>
-            <button class="navtext pseudolink" onclick="navigateToP2()"><b><u>2</u></b></button>
-            <p class="navtext"><b>3</b></p>
+                <button class="btn mleft" onclick="navigateToP2()"> &lt; Página anterior </button>
+                <div class="navtextcont">
+                    <button class="navtext pseudolink" onclick="navigateToP1()"><b><u>1</u></b></button>
+                    <button class="navtext pseudolink" onclick="navigateToP2()"><b><u>2</u></b></button>
+                    <p class="navtext"><b>3</b></p>
+                </div>
             </div>
-            <div class="filler"></div>
-            </div>   
         </footer>
-        <% } else { %>
-            <div class="column">
-                <img class="emptylist" src="assets/images/empty.png" alt="Imagen carrito vacío">
-                <h2>No se encontraron productos</h2>
-                <p>Por favor, asegurate de que el nombre del producto esté bien escrito y sea válido e intenta nuevamente.</p>
-            </div>
-        <% } %>
+    <% } else { %>
+        <div class="column">
+            <img class="emptylist" src="assets/images/empty.png" alt="Imagen carrito vacío">
+            <h2>No se encontraron productos</h2>
+            <p>Por favor, asegurate de que el nombre del producto esté bien escrito y sea válido e intenta nuevamente.</p>
+        </div>
+    <% } %>
 </body>
 </html>
