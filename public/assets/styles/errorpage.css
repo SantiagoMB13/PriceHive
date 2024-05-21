@@ -34,7 +34,7 @@ body {
 }
 
 .error-btn {
-    background-color: #4CAF50;
+    background-color: rgb(232, 100, 100);
     color: white;
     padding: 10px 20px;
     font-size: 16px;
@@ -46,7 +46,7 @@ body {
 }
 
 .error-btn:hover {
-    background-color: #45a049;
+    background-color: red;
 }
 
 html, body {

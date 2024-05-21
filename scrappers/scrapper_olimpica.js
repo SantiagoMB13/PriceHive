@@ -1,4 +1,5 @@
 const { chromium } = require('playwright');
+const { JSDOM } = require('jsdom');
 
 const scrapeOlimpica = async (productName) => {
     let index = 0;
@@ -142,6 +143,7 @@ const getOliproduct = async (productName, prodindex) => {
             await page.waitForSelector('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', { timeout: 10000 });
             specifications = await page.$eval('.vtex-store-components-3-x-specificationsTable.vtex-store-components-3-x-specificationsTable--product-specifications.w-100.bg-base.border-collapse', element => element.innerHTML);
             specifications = "<table>" + specifications + "</table>";
+            specifications = tableToUl(specifications);
         } catch (error) {
                 await browser.close();
                 console.log("Error en el producto " + prodindex + " de Olimpica, intentando con el siguiente...");
@@ -158,5 +160,40 @@ const getOliproduct = async (productName, prodindex) => {
             return { found }; 
     }
 };
+
+function tableToUl(tableHtml) {
+    // Crear un documento en memoria usando JSDOM
+    const dom = new JSDOM(`<!DOCTYPE html><body>${tableHtml}</body>`);
+    const document = dom.window.document;
+
+    // Seleccionar la tabla y las filas
+    const table = document.querySelector('table');
+    const rows = table.getElementsByTagName('tr');
+
+    // Crear el elemento de lista desordenada
+    const ul = document.createElement('ul');
+
+    // Recorrer cada fila de la tabla
+    for (let i = 0; i < rows.length; i++) {
+        const li = document.createElement('li');
+        const cells = rows[i].getElementsByTagName('td');
+        let rowContent = '';
+
+        // Concatenar el contenido de cada celda en una cadena de texto
+        for (let j = 0; j < cells.length; j++) {
+            rowContent += cells[j].textContent;
+            if (j < cells.length - 1) {
+                rowContent += ': ';  // Separador entre celdas
+            }
+        }
+
+        // Asignar el contenido concatenado al elemento <li>
+        li.textContent = rowContent;
+        ul.appendChild(li);
+    }
+
+    // Serializar el <ul> a una cadena HTML
+    return ul.outerHTML;
+}
 
 module.exports = scrapeOlimpica;
