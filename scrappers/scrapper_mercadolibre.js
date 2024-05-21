@@ -64,7 +64,7 @@ const scrapeMercadoLibre = async (productName) => {
                 return regex.test(text);
             };
             return productWords.every(word => wordBoundaryCheck(word, elementTextLowercase)) && !elementTextLowercase.includes("reacondicionado") && //Se filtran los productos que contienen el nombre del producto y no son reacondicionados
-            !elementTextLowercase.includes("cargador") && !elementTextLowercase.includes("charger") && !elementTextLowercase.includes("cable") && !elementTextLowercase.includes("repuesto") && //Se filtran los productos que no sean cargadores o respuestos
+            !elementTextLowercase.includes("cargador") && !elementTextLowercase.includes("charger") && !elementTextLowercase.includes("cable") && !elementTextLowercase.includes("repuesto") && !elementTextLowercase.includes("adaptador") &&//Se filtran los productos que no sean cargadores o respuestos
             !elementTextLowercase.includes("forro") && !elementTextLowercase.includes("case") && !elementTextLowercase.includes("estuche") && !elementTextLowercase.includes("protector") && !elementTextLowercase.includes("templado") && !elementTextLowercase.includes("carcasa"); //Se filtran los productos que no sean forros o protectores
         }));
         // Filtrar los elementos basados en el resultado de las llamadas asíncronas
